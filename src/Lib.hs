@@ -22,7 +22,7 @@ labelSize :: Int
 labelSize = 40
 
 keySize :: Int
-keySize = 64
+keySize = 32
 
 signatureSize :: Int
 signatureSize = 64
