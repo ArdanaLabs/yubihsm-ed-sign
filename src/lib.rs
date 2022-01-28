@@ -24,7 +24,7 @@ pub fn create_client() -> Result<Client, Error> {
 #[no_mangle]
 pub extern fn put_ed_key(id: u16, label: &[u8; LABEL_SIZE], domains: u16, key: &[u8; KEY_SIZE]) -> () {
   let client: Client = create_client().expect("could not connect to YubiHSM");
-  client.delete_object(id, object::Type::AsymmetricKey).expect("could not clear the previous key");
+  client.delete_object(id, object::Type::AsymmetricKey);
   client.put_asymmetric_key(
     id,
     object::Label::from_bytes(label).expect("failed to construct Label from byte array"),
