@@ -5,7 +5,7 @@ use yubihsm::ed25519::Signature;
 use std::slice;
 
 const LABEL_SIZE: usize = 40;
-const KEY_SIZE: usize = 64;
+const KEY_SIZE: usize = 32;
 const SIGNATURE_SIZE: usize = 64;
 
 #[cfg(test)]
