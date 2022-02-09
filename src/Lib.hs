@@ -32,7 +32,7 @@ putEdKey (Id i) (Label label) (Domains d) key = do
   let labelLen = B.length label
   unless (labelLen <= 40) (error "label cannot be longer than 40 characters")
   unless (B.length key == keySize)
-    (error "key length cannot be anything else than 40 characters")
+    (error "key length cannot be anything else than 32 characters")
   let paddedLabel = label `B.append` B.replicate (labelSize - labelLen) 0
   B.useAsCString paddedLabel $ \lb ->
     B.useAsCString key $ \k ->
