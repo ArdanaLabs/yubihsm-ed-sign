@@ -30,4 +30,3 @@ library
     default-language: Haskell2010
     extra-libraries: yubihsmedsign
     extra-lib-dirs: /home/michael/ArdanaLabs/yubihsm-ed-sign/rustbits/target/release
-    extra-include-dirs: /home/michael/ArdanaLabs/yubihsm-ed-sign/rustbits/target/release
