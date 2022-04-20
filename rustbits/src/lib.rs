@@ -10,20 +10,43 @@ const SIGNATURE_SIZE: usize = 64;
 
 #[cfg(test)]
 mod tests {
+  use crate::create_client;
     #[test]
     fn it_works() {
         assert_eq!(2 + 2, 4);
     }
+    #[test]
+    fn test_create_client() {
+      let res = create_client();
+      let isgood = match res {
+        Ok(_) => true,
+        Err(_) => false,
+      };
+      assert_eq!(isgood,true);
+    }
+  //  #[test]
+  //  fn test_put_ed_key() {
+  //    use crate::put_ed_key;
+  //    let client = get_hsm_client();
+  //    use yubihsm::Capability;
+  //    let label = b"\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70";
+  //    let key = b"\x9D\x61\xB1\x9D\xEF\xFD\x5A\x60\xBA\x84\x4A\xF4\x92\xEC\x2C\xC4\x44\x49\xC5\x69\x7B\x32\x69\x19\x70\x3B\xAC\x03\x1C\xAE\x7F\x60";
+  //    let capabilities = Capability::SIGN_EDDSA;
+
+ //     put_ed_key(4, label, 0, key );
+  // }
+
+
 }
 
 pub fn create_client() -> Result<Client, Error> {
-  let connector: Connector = Connector::usb(&Default::default());
+  let connector: Connector = Connector::http(&Default::default());
   Client::open(connector, Default::default(), true)
 }
 
 #[no_mangle]
-pub extern fn put_ed_key(id: u16, label: &[u8; LABEL_SIZE], domains: u16, key: &[u8; KEY_SIZE]) -> () {
-  let client: Client = create_client().expect("could not connect to YubiHSM");
+pub extern fn put_ed_key(client: Client, id: u16, label: &[u8; LABEL_SIZE], domains: u16, key: &[u8; KEY_SIZE]) -> () {
+  //let client: Client = create_client().expect("could not connect to YubiHSM");
   let _ = client.delete_object(id, object::Type::AsymmetricKey);
   client.put_asymmetric_key(
     id,
