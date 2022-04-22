@@ -48,13 +48,24 @@ mod tests {
       let object_info = client.get_object_info(0, object::Type::AsymmetricKey).unwrap_or_else(|err| panic!("error getting object info: {}", err));
        assert_eq!(object_info.capabilities, capabilities);
        assert_eq!(object_info.object_id, 0);
-      // assert_eq!(object_info.domains, Domain::DOM1); // ToDo make this work
+   //    assert_eq!(object_info.domains, ); // ToDo Make this work
        assert_eq!(object_info.object_type, object::Type::AsymmetricKey);
        assert_eq!(object_info.algorithm, algorithm.into());
        assert_eq!(object_info.origin, object::Origin::Imported);
     //   assert_eq!(&object_info.label.to_string(), label.to); // ToDo Make this work
    }
-
+   #[test]
+   fn test_make_asymmetric_key_internal() {
+     use crate::make_asymmetric_key;
+    let label = b"\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70";
+    
+    // make_asymmetric_key(label: &[u8; LABEL_SIZE],domain: u16,key: u16) -> Result<object::Id,Error>
+    let res = make_asymmetric_key(label,0,1);
+    match res {
+      Ok(_) => true,
+      Err(_) => false,
+    };
+   }
 
 }
 
@@ -66,18 +77,19 @@ pub fn create_client() -> Result<Client, Error> {
 }
 
 
-
-pub extern fn put_ed_key(id: u16, label: &[u8; LABEL_SIZE], domains: u16, key: &[u8; KEY_SIZE]) -> () {
-  let client: Client = create_client().expect("could not connect to YubiHSM");
-    put_ed_key_internal(&client,id,label,domains,key);
-}
 #[no_mangle]
-fn put_ed_key_internal(client: &Client, id: u16, label: &[u8; LABEL_SIZE], domains: u16, key: &[u8; KEY_SIZE]) -> () {
+pub extern fn put_ed_key(id: u16, label: &[u8; LABEL_SIZE], domain: u16, key: &[u8; KEY_SIZE]) -> () {
+  let client: Client = create_client().expect("could not connect to YubiHSM");
+    put_ed_key_internal(&client,id,label,domain,key);
+}
+
+fn put_ed_key_internal(client: &Client, id: u16, label: &[u8; LABEL_SIZE], domain: u16, key: &[u8; KEY_SIZE]) -> () {
   let _ = client.delete_object(id, object::Type::AsymmetricKey);
   client.put_asymmetric_key(
     id,
     object::Label::from_bytes(label).expect("failed to construct Label from byte array"),
-    Domain::from_bits_truncate(domains),
+  
+    Domain::from_bits_truncate(domain),
     Capability::SIGN_EDDSA,
     Algorithm::Ed25519,
     &key[..]
@@ -93,3 +105,13 @@ pub extern fn sign_with_ed_key(id: u16, msgptr: *const u8, msglen: usize, result
   let sigbytes: [u8; SIGNATURE_SIZE] = sig.to_bytes();
   unsafe { sigbytes.as_ptr().copy_to(result, SIGNATURE_SIZE) }
 }
+
+ pub extern fn make_asymmetric_key(label: &[u8; LABEL_SIZE],domain: u16,key: u16) -> Result<object::Id,Error>{
+  let client: Client = create_client().expect("could not connect to YubiHSM");
+  return client.generate_asymmetric_key(
+    key,
+    object::Label::from_bytes(label).expect("failed to construct Label from byte array"),
+    Domain::from_bits_truncate(domain),
+    Capability::SIGN_EDDSA,
+    Algorithm::Ed25519 );
+ }
