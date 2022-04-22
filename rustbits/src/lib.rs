@@ -106,7 +106,7 @@ pub extern fn sign_with_ed_key(id: u16, msgptr: *const u8, msglen: usize, result
   unsafe { sigbytes.as_ptr().copy_to(result, SIGNATURE_SIZE) }
 }
 
- pub extern fn make_asymmetric_key(label: &[u8; LABEL_SIZE],domain: u16,key: u16) -> Result<object::Id,Error>{
+ pub fn make_asymmetric_key(label: &[u8; LABEL_SIZE],domain: u16,key: u16) -> Result<object::Id,Error>{
   let client: Client = create_client().expect("could not connect to YubiHSM");
   return client.generate_asymmetric_key(
     key,
