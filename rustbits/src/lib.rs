@@ -1,5 +1,6 @@
 use yubihsm::client::Error;
 use yubihsm::{object, Capability, Client, Connector, Domain};
+
 use yubihsm::asymmetric::Algorithm;
 use yubihsm::ed25519::Signature;
 use std::slice;
@@ -22,12 +23,14 @@ mod tests {
         Ok(_) => true,
         Err(_) => false,
       };
+    
       assert_eq!(isgood,true);
     }
     // Client is not ffi safe
     #[test]
     fn test_put_ed_key() {
-      use yubihsm::{object, Capability};
+      use yubihsm::{object, Capability,Domain,asymmetric};
+    
     //  use crate::put_ed_key;
       use crate::put_ed_key_internal;
       
@@ -40,18 +43,29 @@ mod tests {
       let label = b"\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70\x69\x64\x73\x74\x75\x70";
       let key = b"\x9D\x61\xB1\x9D\xEF\xFD\x5A\x60\xBA\x84\x4A\xF4\x92\xEC\x2C\xC4\x44\x49\xC5\x69\x7B\x32\x69\x19\x70\x3B\xAC\x03\x1C\xAE\x7F\x60";
       let capabilities = Capability::SIGN_EDDSA;
-      put_ed_key_internal(&client,4, label, 0, key );
-      let object_info = client.get_object_info(4, object::Type::AsymmetricKey).unwrap_or_else(|err| panic!("error getting object info: {}", err));
-        assert_eq!(object_info.capabilities, capabilities);
+      let algorithm = asymmetric::Algorithm::Ed25519;
+      put_ed_key_internal(&client,0, label, 0, key );
+      let object_info = client.get_object_info(0, object::Type::AsymmetricKey).unwrap_or_else(|err| panic!("error getting object info: {}", err));
+       assert_eq!(object_info.capabilities, capabilities);
+       assert_eq!(object_info.object_id, 0);
+      // assert_eq!(object_info.domains, Domain::DOM1); // ToDo make this work
+       assert_eq!(object_info.object_type, object::Type::AsymmetricKey);
+       assert_eq!(object_info.algorithm, algorithm.into());
+       assert_eq!(object_info.origin, object::Origin::Imported);
+    //   assert_eq!(&object_info.label.to_string(), label.to); // ToDo Make this work
    }
 
 
 }
 
 pub fn create_client() -> Result<Client, Error> {
-  let connector: Connector = Connector::http(&Default::default());
-  Client::open(connector, Default::default(), true)
+ // let connector: Connector = Connector::http(&Default::default());
+  
+ let connector: Connector = Connector::mockhsm();
+ Client::open(connector, Default::default(), true)
 }
+
+
 
 pub extern fn put_ed_key(id: u16, label: &[u8; LABEL_SIZE], domains: u16, key: &[u8; KEY_SIZE]) -> () {
   let client: Client = create_client().expect("could not connect to YubiHSM");
