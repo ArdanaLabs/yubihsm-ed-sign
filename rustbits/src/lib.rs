@@ -88,7 +88,6 @@ fn put_ed_key_internal(client: &Client, id: u16, label: &[u8; LABEL_SIZE], domai
   client.put_asymmetric_key(
     id,
     object::Label::from_bytes(label).expect("failed to construct Label from byte array"),
-  
     Domain::from_bits_truncate(domain),
     Capability::SIGN_EDDSA,
     Algorithm::Ed25519,
@@ -106,7 +105,8 @@ pub extern fn sign_with_ed_key(id: u16, msgptr: *const u8, msglen: usize, result
   unsafe { sigbytes.as_ptr().copy_to(result, SIGNATURE_SIZE) }
 }
 
- pub fn make_asymmetric_key(label: &[u8; LABEL_SIZE],domain: u16,key: u16) -> Result<object::Id,Error>{
+
+pub fn make_asymmetric_key(label: &[u8; LABEL_SIZE],domain: u16,key: u16) -> Result<object::Id,Error>{
   let client: Client = create_client().expect("could not connect to YubiHSM");
   return client.generate_asymmetric_key(
     key,
@@ -115,3 +115,4 @@ pub extern fn sign_with_ed_key(id: u16, msgptr: *const u8, msglen: usize, result
     Capability::SIGN_EDDSA,
     Algorithm::Ed25519 );
  }
+
