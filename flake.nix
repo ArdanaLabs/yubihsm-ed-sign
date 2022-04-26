@@ -5,9 +5,12 @@
       url = "github:davhau/dream2nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    flake-compat.url = "github:edolstra/flake-compat";
+    flake-compat.flake = false;
+    flake-compat.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, dream2nix }@inputs:
+  outputs = { self, nixpkgs, dream2nix, ... }@inputs:
     let
       version = builtins.substring 0 8 self.lastModifiedDate;
       supportedSystems = [ "x86_64-linux" ];
