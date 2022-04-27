@@ -8,13 +8,7 @@ const LABEL_SIZE: usize = 40;
 const KEY_SIZE: usize = 32;
 const SIGNATURE_SIZE: usize = 64;
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+mod test;
 
 pub fn create_client() -> Result<Client, Error> {
   let connector: Connector = Connector::usb(&Default::default());
