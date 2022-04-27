@@ -4,6 +4,7 @@ flake.lock
 /dist-newstyle
 .stack-work/
 dist/
+result/
 log
 .gitignore
 stack.yaml.lock
