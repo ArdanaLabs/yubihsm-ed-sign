@@ -66,6 +66,22 @@
         "type": "github"
       }
     },
+    "flake-compat": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1650374568,
+        "narHash": "sha256-Z+s0J8/r907g149rllvwhb4pKi8Wam5ij0st8PwAh+E=",
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "rev": "b4a34015c698c7793d592d66adbab377907a2be8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
     "flake-utils-pre-commit": {
       "locked": {
         "lastModified": 1644229661,
@@ -205,6 +221,7 @@
     "root": {
       "inputs": {
         "dream2nix": "dream2nix",
+        "flake-compat": "flake-compat",
         "nixpkgs": "nixpkgs"
       }
     }
