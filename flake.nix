@@ -32,9 +32,8 @@
           }).packages.${system}.yubihsm-ed-sign;
       haskellProject = returnShellEnv: forAllSystems (system: pkgs: 
         let 
-          # Change GHC version here. To get the appropriate value, run:
-          #   nix-env -f "<nixpkgs>" -qaP -A haskell.compiler
-          hp = pkgs.haskellPackages; # pkgs.haskell.packages.ghc921;
+          # Change GHC version here.
+          hp = pkgs.haskellPackages;
         in
           # NOTE: developPackage internally uses callCabal2nix
           hp.developPackage {
