@@ -8,18 +8,13 @@ const LABEL_SIZE: usize = 40;
 const KEY_SIZE: usize = 32;
 const SIGNATURE_SIZE: usize = 64;
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
-
-pub fn create_client() -> Result<Client, Error> {
-  let connector: Connector = Connector::usb(&Default::default());
+pub fn create_client() -> (connector: Connector) -> Result<Client, Error> {
+  // let connector: Connector = Connector::http(&Default::default());
+ // let connector: Connector = Connector::mockhsm();
   Client::open(connector, Default::default(), true)
-}
+ }
+
+
 
 #[no_mangle]
 pub extern fn put_ed_key(id: u16, label: &[u8; LABEL_SIZE], domains: u16, key: &[u8; KEY_SIZE]) -> () {
