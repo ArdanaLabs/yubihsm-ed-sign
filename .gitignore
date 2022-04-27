@@ -1,7 +1,9 @@
 target
 Cargo.lock
+flake.lock
 /dist-newstyle
 .stack-work/
 dist/
 log
+.gitignore
 stack.yaml.lock
