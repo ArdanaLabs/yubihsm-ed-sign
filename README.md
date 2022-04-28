@@ -10,10 +10,10 @@ YubiHSM Rust community bindings.
 
 ## Build instructions
 
-We are still working on a nix-based build. For now,
+We are still working on a pure nix-based build. For now,
 you can build using `cargo` and `cabal`:
 
-- get those tools (under NixOS that would be `nix-shell -p cabal-install cargo`
+- `nix develop`
 - `cd rustbits`
 - `cargo build --release`
 - `cd `..`
