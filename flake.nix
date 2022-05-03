@@ -61,6 +61,7 @@
                   haskell-language-server
                   # Rust build dependencies
                   pkgs.cargo
+                  pkgs.rustc
                 ]);
           }
         );

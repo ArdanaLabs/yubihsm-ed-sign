@@ -1,7 +1,5 @@
 use yubihsm::client::Error;
 use yubihsm::{object, Capability, Client, Connector, Domain};
-use yubihsm::object::Id;
-use yubihsm::{asymmetric::signature::Signer as _};
 use yubihsm::asymmetric::Algorithm;
 use yubihsm::ed25519::Signature;
 use std::slice;
@@ -24,16 +22,16 @@ pub extern fn sign_with_ed_key(id: u16, msgptr: *const u8, msglen: usize, result
   //let _: Connector = mockhsm();
   let client: Client = create_client(connector).expect("could not connect to YubiHSM");
   let msg: &[u8] = unsafe { slice::from_raw_parts(msgptr, msglen) };
-  sign_with_ed_key_internal(client,id,msg,result);
+  unsafe {sign_with_ed_key_internal(&client,id,msg,result)};
 
 }
 
-pub fn sign_with_ed_key_internal(client: Client,id: u16, msg: &[u8], result: *mut u8) -> () {
+pub unsafe fn sign_with_ed_key_internal(client: &Client,id: u16, msg: &[u8], result: *mut u8) -> () {
  // let client: Client = create_client().expect("could not connect to YubiHSM");
   let sig: Signature = client.sign_ed25519(id, msg).expect("could not get the signature");
   let sigbytes: [u8; SIGNATURE_SIZE] = sig.to_bytes();
  // return sigbytes;
-  unsafe { sigbytes.as_ptr().copy_to(result, SIGNATURE_SIZE) }
+  sigbytes.as_ptr().copy_to(result, SIGNATURE_SIZE);
 }
 
 #[no_mangle]
@@ -58,15 +56,3 @@ pub fn put_ed_key_internal(client: &Client, id: u16, label: &[u8; LABEL_SIZE], d
   ).expect("could not put the key");
   ()
 }
-
-
-fn make_asymmetric_key(label: &[u8; LABEL_SIZE],domain: Domain, key_id: u16) -> Result<object::Id,Error>{
-  let connector: Connector = Connector::usb(&Default::default());
-  let client: Client = create_client(connector).expect("could not connect to YubiHSM");
-  return client.generate_asymmetric_key(
-    key_id,
-    object::Label::from_bytes(label).expect("failed to construct Label from byte array"),
-    domain,
-    Capability::SIGN_EDDSA,
-    Algorithm::Ed25519 );
- }
