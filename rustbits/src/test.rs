@@ -21,9 +21,12 @@ mod tests {
  
    // #[test]
     fn test_put_ed_key() {
+    
       use crate::put_ed_key_internal;
+      
       let l:&[u8; 40] = &[0u8;40];
       let connector: Connector = Connector::usb(&Default::default());
+     
       let client: Client = create_client(connector).expect("could not connect to YubiHSM");
       client.delete_object(TEST_KEY_ID, object::Type::AsymmetricKey);
       put_ed_key_internal(
