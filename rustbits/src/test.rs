@@ -19,7 +19,7 @@ mod tests {
         assert_eq!(2 + 2, 4);
     }
  
-   // #[test]
+    #[test]
     fn test_put_ed_key() {
     
       use crate::put_ed_key_internal;
@@ -39,7 +39,7 @@ mod tests {
       //  
       match client.get_public_key(TEST_KEY_ID) {
         Ok(key) => {
-          client.reset_device();
+          client.reset_device(); // Probably unnessecary 
           assert_eq!(key.bytes, PUBLICKEY)
         },
         Err(e) => panic!("Error during asymmetric key test {}", e),
@@ -48,7 +48,7 @@ mod tests {
     }
      #[test]
     fn test_sign_with_ed_key() {
-      use yubihsm::{asymmetric};
+      use yubihsm::asymmetric;
       
       let mut res = [0u8; 64]; 
       
@@ -66,7 +66,7 @@ mod tests {
       ).unwrap();
 
       unsafe {sign_with_ed_key_internal(&client,TEST_KEY_ID, MESSAGE,res.as_mut_ptr())};
-      client.reset_device();
+      client.reset_device(); // probably unessecary
       assert_eq!(SIGNATURE,&res);
      
    }
