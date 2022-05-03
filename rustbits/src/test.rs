@@ -2,7 +2,7 @@
 #[cfg(test)]
 mod tests {
   use yubihsm::{object, Capability, Client, Connector};
-  use crate::{create_client};
+  use crate::create_client;
   use crate::sign_with_ed_key_internal;
   const TEST_KEY_ID: u16 = 200;
   const TEST_SIGNING_KEY_DOMAINS: yubihsm::Domain = yubihsm::Domain::DOM1;
