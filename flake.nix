@@ -70,6 +70,7 @@
       devShell = haskellProject true;
 
       packages = forAllSystems (system: _pkgs: {
+        haskell = haskellProject false;
         yubihsm-ed-sign = rustPackage system; 
       });
     };
