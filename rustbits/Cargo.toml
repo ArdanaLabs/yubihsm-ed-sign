@@ -11,5 +11,5 @@ name = "yubihsmedsign"
 crate-type = ["staticlib"]
 
 [dependencies]
-yubihsm = { version = "0.40.0", features = ["usb"] }
+yubihsm = { version = "0.40.0", features = ["usb", "mockhsm"] }
 libc = "0.2.125"
