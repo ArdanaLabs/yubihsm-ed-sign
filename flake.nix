@@ -129,5 +129,7 @@
         yubihsm-ed-sign = (rustProject system).rootCrate.build.lib; 
         default = haskellProject system false;
       });
+
+      defaultPackage = forAllSystems (system: _pkgs: self.packages.${system}.default);
     };
 }
