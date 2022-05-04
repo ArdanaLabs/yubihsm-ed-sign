@@ -1,6 +1,5 @@
 *result*
 target
-.vscode/
 .stack-work/
 stack.yaml.lock
 /dist-newstyle
