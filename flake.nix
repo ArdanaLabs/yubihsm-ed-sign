@@ -90,9 +90,10 @@
             modifier = drv:
               pkgs.haskell.lib.addBuildTools 
                 (pkgs.haskell.lib.overrideCabal drv (drv: {
-                  # FIXME: This doesn't work. See also the .cabal file.
-                  configureFlags = [ " --extra-lib-dirs=${rustPackage system}/lib" ];
-                })) 
+                  extraLibraries = (drv.extraLibraries or []) ++ [
+                    ((rustProject system).rootCrate.build.lib)
+                  ];
+                }))
                 (with hp; pkgs.lib.lists.optionals returnShellEnv [
                   # Specify your build/dev dependencies here. 
                   cabal-install
