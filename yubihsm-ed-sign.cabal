@@ -30,7 +30,7 @@ library
     default-language: Haskell2010
     extra-libraries:  
         -- TODO: Uncomment this after building Rust binary via Nix, and using it in Haskell dev env.
-          yubihsmedsign
+      --    yubihsmedsign
           pthread
     -- TODO: Nixify and drop this.
     extra-lib-dirs:   rustbits/target/release
