@@ -39,6 +39,12 @@
           mergeDevShells = import ./nix/mergeDevShells.nix { inherit pkgs; };
           rust = import ./nix/rust.nix ({ inherit pkgs; } // inputs);
 
+          # Nix for Rust development environment and build
+          #
+          # - `(rustProject false).rootCrate` gives the Rust crate, the
+          #   `build.lib` attribute of which returns the derivation for the
+          #   library in Cargo.toml
+          # - `rustProject true` gives the dev shell.
           rustProject = returnShellEnv:
             rust.developPackage {
               inherit returnShellEnv name;
@@ -46,6 +52,9 @@
             };
 
           # Nix for Haskell development environment and build
+          #
+          # - `haskellProject false` gives the build derivation.
+          # - `haskellProject true` gives the dev shell.
           haskellProject = returnShellEnv:
             # NOTE: developPackage internally uses callCabal2nix
             pkgs.haskellPackages.developPackage {

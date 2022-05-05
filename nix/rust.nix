@@ -1,3 +1,8 @@
+# Much of this is based on https://github.com/srid/rust-nix-template
+#
+# Once dream2nix gets support for Rust dev shells, we may switch over to it.
+# Until then crate2nix along with the oxalica overlay provides a desirable
+# development environment for Rust based on Nix.
 { pkgs
 , # Rust release channel to use.
   # https://rust-lang.github.io/rustup/concepts/channels.html
