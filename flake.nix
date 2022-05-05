@@ -49,8 +49,32 @@
             ];
           };
 
-          # Create the cargo2nix project
-          rustProject = system:
+          # Merge multiple devShells into one, such that entering the resulting
+          # dev shell puts one in the environment of all the input dev shells.
+          mergeDevShells = envs: pkgs.mkShell (builtins.foldl'
+            (a: b:
+              # Standard shell attributes
+              {
+                buildInputs = a.buildInputs ++ b.buildInputs;
+                nativeBuildInputs = a.nativeBuildInputs ++ b.nativeBuildInputs;
+                propagatedBuildInputs = a.propagatedBuildInputs ++ b.propagatedBuildInputs;
+                propagatedNativeBuildInputs = a.propagatedNativeBuildInputs ++ b.propagatedNativeBuildInputs;
+                shellHook = a.shellHook + "\n" + b.shellHook;
+              } //
+              # Environment variables
+              (
+                let
+                  isUpperCase = s: pkgs.lib.strings.toUpper s == s;
+                  filterUpperCaseAttrs = attrs: pkgs.lib.attrsets.filterAttrs (n: _: isUpperCase n) attrs;
+                in
+                filterUpperCaseAttrs a // filterUpperCaseAttrs b
+              )
+            )
+            (pkgs.mkShell { })
+            envs);
+
+          # Nix for Rust development environment and build
+          rustProject =
             let
               # This is provides Haskell's `callCabal2Nix` but for Rust.
               # cf. https://github.com/kolloch/crate2nix/issues/110
@@ -65,21 +89,32 @@
                 defaultCrateOverrides = pkgs.defaultCrateOverrides // {
                   # The project crate itself is overriden here. Typically we
                   # configure non-Rust dependencies (see below) here.
-                  ${name} = oldAttrs: rustDeps system;
+                  ${name} = oldAttrs: rustProjectDeps;
                 };
               };
-          rustDeps = system: {
+          rustProjectDeps = {
             # Configuration for the non-Rust dependencies
             buildInputs = with pkgs; [ openssl.dev ];
             nativeBuildInputs = with pkgs; [ rustc cargo pkgconfig ];
           };
-          haskellProject = system: returnShellEnv:
-            let
-              # Change GHC version here.
-              hp = pkgs.haskellPackages;
-            in
+          rustProjectLib = rustProject.rootCrate.build.lib;
+          rustProjectShell =
+            pkgs.mkShell {
+              inputsFrom = [ rustProjectLib ];
+              buildInputs = rustProjectDeps.buildInputs ++ (with pkgs;
+                # Tools you need for development go here.
+                [
+                  cargo-watch
+                  pkgs.rust-bin.${rustChannel}.latest.rust-analysis
+                  pkgs.rust-bin.${rustChannel}.latest.rls
+                ]);
+              RUST_SRC_PATH = "${pkgs.rust-bin.${rustChannel}.latest.rust-src}/lib/rustlib/src/rust/library";
+            };
+
+          # Nix for Haskell development environment and build
+          haskellProject = returnShellEnv:
             # NOTE: developPackage internally uses callCabal2nix
-            hp.developPackage {
+            pkgs.haskellPackages.developPackage {
               inherit returnShellEnv;
               name = "yubihsm-ed-sign";
               root = ./.;
@@ -92,41 +127,29 @@
                 # Assumes that you have the 'NanoID' flake input defined.
               };
               modifier = drv:
-                pkgs.haskell.lib.addBuildTools
-                  (pkgs.haskell.lib.overrideCabal drv (drv: {
-                    extraLibraries = (drv.extraLibraries or [ ]) ++ [
-                      ((rustProject system).rootCrate.build.lib)
-                    ];
-                  }))
-                  (with hp; pkgs.lib.lists.optionals returnShellEnv [
-                    # Specify your build/dev dependencies here. 
+                pkgs.haskell.lib.overrideCabal drv (drv: {
+                  extraLibraries = (drv.extraLibraries or [ ]) ++ [
+                    rustProjectLib
+                  ];
+                  buildTools = with pkgs.haskellPackages; (drv.buildTools or [ ]) ++ pkgs.lib.lists.optionals returnShellEnv [
                     cabal-install
                     ghcid
                     haskell-language-server
-                    # Rust build dependencies
-                    pkgs.cargo
-                    pkgs.rustc
-                  ]);
+                  ];
+                });
             };
         in
         {
           devShell =
-            (haskellProject system true).overrideAttrs (oa: {
-              inputsFrom = (oa.inputsFrom or [ ]) ++ [ self.packages.${system}.yubihsm-ed-sign ];
-              buildInputs = oa.buildInputs ++ (rustDeps system).buildInputs ++ (with pkgs;
-                # Tools you need for development go here.
-                [
-                  nixpkgs-fmt
-                  cargo-watch
-                  pkgs.rust-bin.${rustChannel}.latest.rust-analysis
-                  pkgs.rust-bin.${rustChannel}.latest.rls
-                ]);
-              RUST_SRC_PATH = "${pkgs.rust-bin.${rustChannel}.latest.rust-src}/lib/rustlib/src/rust/library";
-            });
+            mergeDevShells
+              [
+                (haskellProject true)
+                rustProjectShell
+              ];
 
           packages = {
-            yubihsm-ed-sign = (rustProject system).rootCrate.build.lib;
-            default = haskellProject system false;
+            yubihsm-ed-sign = rustProjectLib;
+            default = haskellProject false;
           };
 
           defaultPackage = self.packages.${system}.default;
