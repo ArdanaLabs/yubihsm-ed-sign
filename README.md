@@ -10,14 +10,24 @@ YubiHSM Rust community bindings.
 
 ## Build instructions
 
-We are still working on a nix-based build. For now,
-you can build using `cargo` and `cabal`:
+The Rust and Haskell library can be built using Nix as follows,
 
-- get those tools (under NixOS that would be `nix-shell -p cabal-install cargo`
-- `cd rustbits`
-- `cargo build --release`
-- `cd `..`
-- `cabal build`
+```
+# Rust
+nix build .#yubihsm-ed-sign-rust
+# Haskell
+nix build .#yubihsm-ed-sign-haskell
+```
+
+You can also use `cabal` or `cargo` from inside of `nix develop` shell.  For example,
+
+```sh-session
+nix develop
+cd ./rustbits
+cargo test
+cd ../
+cabal build
+```
 
 ### VSCode setup
 
