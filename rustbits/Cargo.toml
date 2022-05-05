@@ -6,6 +6,8 @@ edition = "2018"
 resolver = "2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.release]
+debug-assertions = true
 
 [lib]
 name = "yubihsmedsign"
