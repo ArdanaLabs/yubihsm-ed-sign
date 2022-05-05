@@ -3,13 +3,19 @@ name = "yubihsm-ed-sign"
 version = "0.1.0"
 authors = ["Oleg Prutz <oleg@mlabs.city>"]
 edition = "2018"
+resolver = "2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.release]
+debug-assertions = true
 
 [lib]
 name = "yubihsmedsign"
 crate-type = ["staticlib"]
 
 [dependencies]
-yubihsm = { version = "0.40.0", features = ["usb", "mockhsm"] }
+yubihsm = { version = "0.40.0", features = ["usb"] }
 libc = "0.2.125"
+
+[dev-dependencies]
+yubihsm = { version = "0.40.0", features = ["usb", "mockhsm"] }
