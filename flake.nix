@@ -31,22 +31,10 @@
       # 'system' at top-level var.
       outputsFor = system:
         let
-          name = "yubihsmedsign";
-          # Rust release channel to use.
-          # https://rust-lang.github.io/rustup/concepts/channels.html
-          rustChannel = "stable";
+          name = "yubihsm-ed-sign";
           pkgs = import nixpkgs {
             inherit system;
-            overlays = [
-              inputs.rust-overlay.overlay
-              (self: super: {
-                # Because rust-overlay bundles multiple rust packages into one
-                # derivation, specify that mega-bundle here, so that crate2nix
-                # will use them automatically.
-                rustc = self.rust-bin.${rustChannel}.latest.default;
-                cargo = self.rust-bin.${rustChannel}.latest.default;
-              })
-            ];
+            overlays = rustOverlays;
           };
 
           # Merge multiple devShells into one, such that entering the resulting
@@ -92,6 +80,20 @@
                   ${name} = oldAttrs: rustProjectDeps;
                 };
               };
+          # Rust release channel to use.
+          # https://rust-lang.github.io/rustup/concepts/channels.html
+          rustChannel = "stable";
+          rustOverlays =
+            [
+              inputs.rust-overlay.overlay
+              (self: super: {
+                # Because rust-overlay bundles multiple rust packages into one
+                # derivation, specify that mega-bundle here, so that crate2nix
+                # will use them automatically.
+                rustc = self.rust-bin.${rustChannel}.latest.default;
+                cargo = self.rust-bin.${rustChannel}.latest.default;
+              })
+            ];
           rustProjectDeps = {
             # Configuration for the non-Rust dependencies
             buildInputs = with pkgs; [ openssl.dev ];
@@ -115,8 +117,7 @@
           haskellProject = returnShellEnv:
             # NOTE: developPackage internally uses callCabal2nix
             pkgs.haskellPackages.developPackage {
-              inherit returnShellEnv;
-              name = "yubihsm-ed-sign";
+              inherit returnShellEnv name;
               root = ./.;
               withHoogle = false;
               overrides = self: super: with pkgs.haskell.lib; {
@@ -148,11 +149,11 @@
               ];
 
           packages = {
-            yubihsm-ed-sign = rustProjectLib;
-            default = haskellProject false;
+            yubihsm-ed-sign-rust = rustProjectLib;
+            yubihsm-ed-sign-haskell = haskellProject false;
           };
 
-          defaultPackage = self.packages.${system}.default;
+          defaultPackage = self.packages.${system}.yubihsm-ed-sign-haskell;
         };
     in
     inputs.flake-utils.lib.eachSystem [ "x86_64-linux" ] outputsFor;
