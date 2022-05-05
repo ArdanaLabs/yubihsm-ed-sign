@@ -17,7 +17,8 @@ pub fn create_client(connector: Connector) -> Result<Client, Error> {
 
 #[no_mangle]
 pub extern fn sign_with_ed_key(id: u16, msgptr: *const u8, msglen: usize, result: *mut u8) -> () {
-  let connector: Connector = Connector::usb(&Default::default());
+ let connector: Connector = Connector::usb(&Default::default());
+ 
   let client: Client = create_client(connector).expect("could not connect to YubiHSM");
   let msg: &[u8] = unsafe { slice::from_raw_parts(msgptr, msglen) };
   unsafe {sign_with_ed_key_internal(&client,id,msg,result)};
