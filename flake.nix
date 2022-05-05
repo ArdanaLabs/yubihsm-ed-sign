@@ -34,60 +34,15 @@
           name = "yubihsm-ed-sign";
           pkgs = import nixpkgs {
             inherit system;
-            overlays = rustOverlays;
+            overlays = rust.overlays;
           };
           mergeDevShells = import ./nix/mergeDevShells.nix { inherit pkgs; };
+          rust = import ./nix/rust.nix ({ inherit pkgs; } // inputs);
 
-          # Nix for Rust development environment and build
-          rustProject =
-            let
-              # This is provides Haskell's `callCabal2Nix` but for Rust.
-              # cf. https://github.com/kolloch/crate2nix/issues/110
-              inherit (import "${inputs.crate2nix}/tools.nix" { inherit pkgs; })
-                generatedCargoNix;
-            in
-            pkgs.callPackage (generatedCargoNix { inherit name; src = ./rustbits; })
-              {
-                buildRustCrate = null; # https://github.com/kolloch/crate2nix/pull/178#issuecomment-820692187
-                # Individual crate overrides go here
-                # Example: https://github.com/balsoft/simple-osd-daemons/blob/6f85144934c0c1382c7a4d3a2bbb80106776e270/flake.nix#L28-L50
-                defaultCrateOverrides = pkgs.defaultCrateOverrides // {
-                  # The project crate itself is overriden here. Typically we
-                  # configure non-Rust dependencies (see below) here.
-                  ${name} = oldAttrs: rustProjectDeps;
-                };
-              };
-          # Rust release channel to use.
-          # https://rust-lang.github.io/rustup/concepts/channels.html
-          rustChannel = "stable";
-          rustOverlays =
-            [
-              inputs.rust-overlay.overlay
-              (self: super: {
-                # Because rust-overlay bundles multiple rust packages into one
-                # derivation, specify that mega-bundle here, so that crate2nix
-                # will use them automatically.
-                rustc = self.rust-bin.${rustChannel}.latest.default;
-                cargo = self.rust-bin.${rustChannel}.latest.default;
-              })
-            ];
-          rustProjectDeps = {
-            # Configuration for the non-Rust dependencies
-            buildInputs = with pkgs; [ openssl.dev ];
-            nativeBuildInputs = with pkgs; [ rustc cargo pkgconfig ];
-          };
-          rustProjectLib = rustProject.rootCrate.build.lib;
-          rustProjectShell =
-            pkgs.mkShell {
-              inputsFrom = [ rustProjectLib ];
-              buildInputs = rustProjectDeps.buildInputs ++ (with pkgs;
-                # Tools you need for development go here.
-                [
-                  cargo-watch
-                  pkgs.rust-bin.${rustChannel}.latest.rust-analysis
-                  pkgs.rust-bin.${rustChannel}.latest.rls
-                ]);
-              RUST_SRC_PATH = "${pkgs.rust-bin.${rustChannel}.latest.rust-src}/lib/rustlib/src/rust/library";
+          rustProject = returnShellEnv:
+            rust.developPackage {
+              inherit returnShellEnv name;
+              root = ./rustbits;
             };
 
           # Nix for Haskell development environment and build
@@ -107,7 +62,7 @@
               modifier = drv:
                 pkgs.haskell.lib.overrideCabal drv (drv: {
                   extraLibraries = (drv.extraLibraries or [ ]) ++ [
-                    rustProjectLib
+                    (rustProject false).rootCrate.build.lib
                   ];
                   buildTools = with pkgs.haskellPackages; (drv.buildTools or [ ]) ++ pkgs.lib.lists.optionals returnShellEnv [
                     cabal-install
@@ -122,11 +77,11 @@
             mergeDevShells
               [
                 (haskellProject true)
-                rustProjectShell
+                (rustProject true)
               ];
 
           packages = {
-            yubihsm-ed-sign-rust = rustProjectLib;
+            yubihsm-ed-sign-rust = (rustProject false).rootCrate.build.lib;
             yubihsm-ed-sign-haskell = haskellProject false;
           };
 
