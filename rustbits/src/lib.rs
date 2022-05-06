@@ -16,6 +16,11 @@ pub fn create_client(connector: Connector) -> Result<Client, Error> {
 
 
 #[no_mangle]
+pub extern fn hello_world() {
+  print!("Hello world");
+}
+
+#[no_mangle]
 pub extern fn sign_with_ed_key(id: u16, msgptr: *const u8, msglen: usize, result: *mut u8) -> () {
  let connector: Connector = Connector::usb(&Default::default());
  

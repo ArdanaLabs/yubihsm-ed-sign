@@ -8,11 +8,15 @@ import Control.Monad (unless)
 import qualified Data.ByteString as B
 
 
+{-
 foreign import ccall unsafe "put_ed_key" put_ed_key
   :: CUShort -> CString -> CUShort -> CString -> IO ()
 
 foreign import ccall unsafe "sign_with_ed_key" sign_with_ed_key
   :: CUShort -> CString -> CSize -> CString -> IO ()
+-}
+foreign import ccall unsafe "hello_world" hello_world
+  :: IO ()
 
 newtype Id = Id Word16 deriving (Eq, Show)
 newtype Label = Label B.ByteString deriving (Eq, Show)
@@ -27,6 +31,9 @@ keySize = 32
 signatureSize :: Int
 signatureSize = 64
 
+helloWorld :: IO() 
+helloWorld = hello_world
+{-
 putEdKey :: Id -> Label -> Domains -> B.ByteString -> IO ()
 putEdKey (Id i) (Label label) (Domains d) key = do
   let labelLen = B.length label
@@ -44,3 +51,4 @@ signWithEdKey (Id i) messageB =
     B.useAsCStringLen messageB $ \(msgptr, msglen) ->
       sign_with_ed_key (CUShort i) msgptr (fromIntegral msglen) outputBuffer
     B.packCStringLen (outputBuffer, signatureSize)
+-}

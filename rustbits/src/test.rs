@@ -2,7 +2,8 @@
 mod tests {
   use yubihsm::{object, Capability, Client, Connector};
   use crate::create_client;
-  use crate::sign_with_ed_key_internal;
+  use crate::hello_world;
+use crate::sign_with_ed_key_internal;
   const TEST_KEY_ID: u16 = 200;
   const TEST_SIGNING_KEY_DOMAINS: yubihsm::Domain = yubihsm::Domain::DOM1;
 
@@ -19,6 +20,11 @@ mod tests {
         assert_eq!(2 + 2, 4);
     }
  
+    #[test]
+    fn test_hello_world() {
+      hello_world(); // I don't think this test means anything
+  }
+
     #[test]
     fn test_put_ed_key() {
     
