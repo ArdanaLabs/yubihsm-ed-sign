@@ -29,6 +29,16 @@ cd ../
 cabal build
 ```
 
+To test the Haskell->Rust integration works, a Cabal executable is provided. You can run it as:
+
+```
+❯ nix run
+thread '<unnamed>' panicked at 'could not connect to YubiHSM: Error(Context { kind: ProtocolError, source: Some(Error(Context { kind: ProtocolError, source: Some(Error(Context { kind: UsbError, source: Some(Message("no YubiHSM 2 devices detected")) })) })) })', src/lib.rs:39:49
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+fatal runtime error: failed to initiate panic, error 5
+Aborted (core dumped)
+```
+
 ### VSCode setup
 
 - [Install Nix](https://nixos.org/download.html) & [enable Flakes](https://nixos.wiki/wiki/Flakes)
