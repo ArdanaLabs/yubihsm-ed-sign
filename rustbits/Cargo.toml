@@ -13,6 +13,9 @@ debug-assertions = true
 name = "yubihsmedsign"
 crate-type = ["staticlib"]
 
+[features]
+develop = []
+
 [dependencies]
 yubihsm = { version = "0.40.0", features = ["usb"] }
 libc = "0.2.125"

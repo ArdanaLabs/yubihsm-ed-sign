@@ -3,7 +3,9 @@ import Data.Text.Encoding
 import Data.Text (pack)
 
 main :: IO ()
-main = test
+main = do
+  test
+  putStrLn("finished");
 
 -- | Use this to test if the Rust library is linked propertly.
 --

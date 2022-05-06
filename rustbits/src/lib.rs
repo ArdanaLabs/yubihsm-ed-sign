@@ -20,10 +20,25 @@ pub extern fn hello_world() {
   print!("Hello world");
 }
 
+#[cfg(feature = "production")]
+fn make_connector() -> Connector {
+return Connector::usb(&Default::default());
+}
+
+#[cfg(feature = "develop")]
+fn make_connector() -> Connector {
+return Connector = Connector::mockhsm();
+}
+
+#[cfg(feature = "testing")]
+fn make_connector() -> Connector {
+
+  return Connector = Connector::mockhsm();
+}
+
 #[no_mangle]
 pub extern fn sign_with_ed_key(id: u16, msgptr: *const u8, msglen: usize, result: *mut u8) -> () {
- let connector: Connector = Connector::usb(&Default::default());
- 
+  let connector = make_connector(); 
   let client: Client = create_client(connector).expect("could not connect to YubiHSM");
   let msg: &[u8] = unsafe { slice::from_raw_parts(msgptr, msglen) };
   unsafe {sign_with_ed_key_internal(&client,id,msg,result)};
