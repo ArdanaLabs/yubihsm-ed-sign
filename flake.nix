@@ -67,12 +67,13 @@
                 # Example: 
                 # > NanoID = self.callCabal2nix "NanoID" inputs.NanoID { };
                 # Assumes that you have the 'NanoID' flake input defined.
+
+                # The 3c99cfdd88 suffix is the Rust compiler hash
+                # cf. https://stackoverflow.com/a/28335376/55246
+                yubihsm_ed_sign-3c99cfdd88 = (rustProject false).rootCrate.build.lib;
               };
               modifier = drv:
                 pkgs.haskell.lib.overrideCabal drv (drv: {
-                  extraLibraries = (drv.extraLibraries or [ ]) ++ [
-                    (rustProject false).rootCrate.build.lib
-                  ];
                   buildTools = with pkgs.haskellPackages; (drv.buildTools or [ ]) ++ pkgs.lib.lists.optionals returnShellEnv [
                     cabal-install
                     ghcid
