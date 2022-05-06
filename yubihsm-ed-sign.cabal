@@ -31,4 +31,14 @@ library
 
     extra-libraries:  
           pthread
- 
+          -- The 3c99cfdd88 suffix is the Rust compiler hash
+          -- cf. https://stackoverflow.com/a/28335376/55246
+        , yubihsm_ed_sign-3c99cfdd88
+
+executable yubihsm-ed-sign
+    hs-source-dirs: exe
+    main-is: Main.hs
+    build-depends: 
+        base, 
+        text,
+        yubihsm-ed-sign
