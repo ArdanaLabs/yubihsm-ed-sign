@@ -14,10 +14,12 @@
     flake-compat.inputs.nixpkgs.follows = "nixpkgs";
 
     # Crane is used to provide Rust build and development environments.
-    # Eventually, we want to switch over to the dream2nix-based
-    # https://github.com/yusdacra/nix-cargo-integration (still using Crane as
-    # the backend) once we figure out how to use it in a multi-language flake
-    # like ours.
+    #   https://ipetkov.dev/blog/introducing-crane/
+    #
+    # Eventually, we may want to switch over to the dream2nix-based
+    # https://github.com/yusdacra/nix-cargo-integration (whilst still using
+    # Crane as the backend) once we figure out how to use it in a multi-language
+    # flake like ours.
     crane.url = "github:ipetkov/crane";
     crane.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -55,6 +57,9 @@
                 ];
                 # This is needed for rust-analyzer to work.
                 RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
+                # For downstream projects (eg: Haskell) to access the rustbits
+                # in their runtime tools like repls and language servers.
+                LD_LIBRARY_PATH = "${rustbits-crate}/lib";
               };
             in
             if returnShellEnv then rustbits-devShell else rustbits-crate;

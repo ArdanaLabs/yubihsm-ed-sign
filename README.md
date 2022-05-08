@@ -12,7 +12,7 @@ YubiHSM Rust community bindings.
 
 The Rust and Haskell library can be built using Nix as follows,
 
-```
+```sh
 # Rust
 nix build .#yubihsm-ed-sign-rust
 # Haskell
@@ -21,7 +21,7 @@ nix build .#yubihsm-ed-sign-haskell
 
 You can also use `cabal` or `cargo` from inside of `nix develop` shell.  For example,
 
-```sh-session
+```sh
 nix develop
 cd ./rustbits
 cargo test
@@ -31,7 +31,7 @@ cabal build
 
 To test the Haskell->Rust integration works, a Cabal executable is provided. You can run it as:
 
-```
+```sh-session
 ❯ nix run
 thread '<unnamed>' panicked at 'could not connect to YubiHSM: Error(Context { kind: ProtocolError, source: Some(Error(Context { kind: ProtocolError, source: Some(Error(Context { kind: UsbError, source: Some(Message("no YubiHSM 2 devices detected")) })) })) })', src/lib.rs:39:49
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
@@ -47,6 +47,15 @@ Aborted (core dumped)
     - When prompted by VSCode, install the [workspace recommended](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions) extensions
     - <kbd>Ctrl+Shift+P</kbd> to run command "Nix-Env: Select Environment" and then select `shell.nix`. 
         - The extension will ask you to reload VSCode at the end. Do it.
+
+### Development workflows
+
+Some useful development works.
+
+- When editing the Haskell library, run `nix develop -c ghcid` to get fast compile feedback.
+- When editing the Haskell executable, run `nix develop -c ghcid -c 'cabal repl exe:yubihsm-ed-sign'` to get fast compile feedback.
+  - Add `-T :main` inside of `-c` argument if you also want to run the main entrypoint.
+- For Haskell repl, `nix develop -c cabal repl`
 
 ## Directory structure
 
