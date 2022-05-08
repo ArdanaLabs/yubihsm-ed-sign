@@ -13,18 +13,12 @@
     flake-compat.flake = false;
     flake-compat.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Crane is used to provide Rust build and development environments.
-    #   https://ipetkov.dev/blog/introducing-crane/
-    #
-    # Eventually, we may want to switch over to the dream2nix-based
-    # https://github.com/yusdacra/nix-cargo-integration (whilst still using
-    # Crane as the backend) once we figure out how to use it in a multi-language
-    # flake like ours.
-    crane.url = "github:ipetkov/crane";
-    crane.inputs.nixpkgs.follows = "nixpkgs";
+    # For Rust development.
+    nci.url = "github:yusdacra/nix-cargo-integration";
+    nci.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, crane, ... }@inputs:
+  outputs = { self, nixpkgs, nci, ... }@inputs:
     let
       # A function that produces Flake outputs for the given system.
       #
@@ -35,34 +29,27 @@
           pkgs = inputs.nixpkgs.legacyPackages.${system};
           mergeDevShells = import ./nix/mergeDevShells.nix { inherit pkgs; };
 
-          # Nix for Rust development environment and build
-          #
-          # - `rustProject false` gives the library crate.
-          # - `rustProject true` gives the dev shell.
-          rustProject = returnShellEnv:
-            let
-              src = ./rustbits;
-              cargoArtifacts = crane.lib.${system}.buildDepsOnly {
-                inherit src;
-              };
-              rustbits-crate = crane.lib.${system}.buildPackage {
-                inherit src cargoArtifacts;
-              };
-              rustbits-devShell = pkgs.mkShell {
-                inputsFrom = [ rustbits-crate ];
-                nativeBuildInputs = with pkgs; [
-                  cargo
-                  rustc
-                  rust-analyzer
+          # Subflake for Rust development environment and build
+          rustFlake = nci.lib.makeOutputs {
+            # Documentation and examples:
+            # https://github.com/yusdacra/rust-nix-templater/blob/master/template/flake.nix
+            root = ./rustbits;
+            overrides = {
+              shell = common: prev: {
+                packages = prev.packages ++ [
+                  pkgs.rust-analyzer
                 ];
-                # This is needed for rust-analyzer to work.
-                RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
-                # For downstream projects (eg: Haskell) to access the rustbits
-                # in their runtime tools like repls and language servers.
-                LD_LIBRARY_PATH = "${rustbits-crate}/lib";
+                env = prev.env ++ [
+                  # For downstream projects (eg: Haskell) to access the Rust
+                  # library in their runtime tools like repls and language
+                  # servers.
+                  (nixpkgs.lib.nameValuePair "LD_LIBRARY_PATH" "${rustPackage}/lib")
+                ];
               };
-            in
-            if returnShellEnv then rustbits-devShell else rustbits-crate;
+            };
+          };
+          rustPackage = rustFlake.packages.${system}.yubihsm-ed-sign;
+          rustShell = rustFlake.devShell.${system};
 
           # Nix for Haskell development environment and build
           #
@@ -81,7 +68,7 @@
                 # Example: 
                 # > NanoID = self.callCabal2nix "NanoID" inputs.NanoID { };
                 # Assumes that you have the 'NanoID' flake input defined.
-                yubihsmedsign = rustProject false;
+                yubihsmedsign = rustPackage;
               };
               modifier = drv:
                 pkgs.haskell.lib.overrideCabal drv (drv: {
@@ -95,8 +82,8 @@
         in
         {
           devShells = {
+            rust = rustShell;
             haskell = haskellProject true;
-            rust = rustProject true;
             default =
               mergeDevShells
                 [
@@ -106,7 +93,7 @@
           };
 
           packages = {
-            yubihsm-ed-sign-rust = rustProject false;
+            yubihsm-ed-sign-rust = rustPackage;
             yubihsm-ed-sign-haskell = haskellProject false;
           };
 

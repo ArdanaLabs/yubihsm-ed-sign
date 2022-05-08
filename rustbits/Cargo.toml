@@ -19,3 +19,9 @@ libc = "0.2.125"
 
 [dev-dependencies]
 yubihsm = { version = "0.40.0", features = ["usb", "mockhsm"] }
+
+[package.metadata.nix]
+app = true
+build = true
+library = true
+systems = ["x86_64-linux"]
