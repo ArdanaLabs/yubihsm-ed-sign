@@ -31,8 +31,7 @@ fn mock_connector() -> Connector {
 
 fn make_connector(testing_mock: bool) -> Connector {
   if testing_mock { mock_connector() } else {
-    panic!("wrong")
-    // Connector::usb(&Default::default())
+    Connector::usb(&Default::default())
   }
 }
 
