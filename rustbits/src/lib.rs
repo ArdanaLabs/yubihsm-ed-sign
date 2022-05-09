@@ -55,13 +55,15 @@ pub unsafe extern "C" fn sign_with_ed_key(
     let msg: &[u8] = slice::from_raw_parts(msgptr, msglen);
     sign_with_ed_key_internal(&client, id, msg, result);
 }
-
+/// # Safety 
+/// 
+/// To Do -mlitchard
 pub unsafe fn sign_with_ed_key_internal(
     client: &Client,
     id: u16,
     msg: &[u8],
     result: *mut u8,
-) -> () {
+) {
     let sig: Signature = client
         .sign_ed25519(id, msg)
         .expect("could not get the signature");
