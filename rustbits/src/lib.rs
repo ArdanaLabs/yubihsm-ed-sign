@@ -99,7 +99,7 @@ pub fn put_ed_key_internal(
     label: &[u8; LABEL_SIZE],
     domain: u16,
     key: &[u8; KEY_SIZE],
-) -> () {
+) {
     let _ = client.delete_object(id, object::Type::AsymmetricKey);
     let t_domain: Domain = Domain::from_bits_truncate(domain);
 
