@@ -9,7 +9,9 @@
 # This also holds true for GitHub teams.
 
 # This file
-/.github/CODEOWNERS @MatthewCroughan
+/.github/CODEOWNERS @CSVdB
 
 # Any nix code
-*.nix @MatthewCroughan @nixinator @DarthPJB
+*.nix @MatthewCroughan @nixinator @DarthPJB @srid
+
+* @mlitchard
