@@ -44,15 +44,6 @@ pub unsafe fn sign_with_ed_key_internal(client: &Client,id: u16, msg: &[u8], res
   let sigbytes: [u8; SIGNATURE_SIZE] = sig.to_bytes();
  
   sigbytes.as_ptr().copy_to(result, SIGNATURE_SIZE);
-
-  #[cfg(testing)]
-  match client.get_public_key(TEST_KEY_ID) {
-    Ok(key) => {
-      client.reset_device(); // Probably unnessecary 
-      assert_eq!(key.bytes, PUBLICKEY)
-    },
-    Err(e) => panic!("Error during asymmetric key test {}", e),
-  }
 }
 
 #[no_mangle]
