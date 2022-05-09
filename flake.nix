@@ -79,11 +79,14 @@
                   ];
                 });
             };
+            haskellPackage = haskellProject false;
+            haskellShell = haskellProject true;
+
         in
         {
           devShells = {
             rust = rustShell;
-            haskell = haskellProject true;
+            haskell = haskellShell;
             default =
               mergeDevShells
                 [
@@ -94,7 +97,7 @@
 
           packages = {
             yubihsm-ed-sign-rust = rustPackage;
-            yubihsm-ed-sign-haskell = haskellProject false;
+            yubihsm-ed-sign-haskell = haskellPackage;
           };
 
           # For commpat with older Nix
