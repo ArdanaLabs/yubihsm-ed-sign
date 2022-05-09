@@ -13,19 +13,10 @@ debug-assertions = true
 name = "yubihsmedsign"
 crate-type = ["staticlib", "cdylib"]
 
-
 [dependencies]
-yubihsm = { version = "0.40.0", features = ["usb"] }
-libc = "0.2.125"
-
-[features]
-# This is for development only!!!
-default = ["testing"]
-testing = []
-
-[dev-dependencies]
+## TODO mockhsm should be behind a feature, but that requires support from nix-cargo-integration
 yubihsm = { version = "0.40.0", features = ["usb", "mockhsm"] }
-yubihsm-ed-sign = { path = '.', features = ["testing"] }
+libc = "0.2.125"
 
 [package.metadata.nix]
 app = true
