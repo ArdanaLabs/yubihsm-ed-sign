@@ -13,17 +13,12 @@
     flake-compat.flake = false;
     flake-compat.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Rust inputs
-    # - crate2nix provides developer environments, unlike the Rust support in nixpkgs.
-    # - rust-overlay provides the suite of Rust toolchains we need for IDE
-    #   support, etc. It is also fairly easy to switch between different Rust
-    #   channels.
-    crate2nix.url = "github:kolloch/crate2nix";
-    crate2nix.flake = false;
-    rust-overlay.url = "github:oxalica/rust-overlay";
+    # For Rust development.
+    nci.url = "github:yusdacra/nix-cargo-integration";
+    nci.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, ... }@inputs:
+  outputs = { self, nixpkgs, nci, ... }@inputs:
     let
       # A function that produces Flake outputs for the given system.
       #
@@ -31,25 +26,30 @@
       # 'system' at top-level var.
       outputsFor = system:
         let
-          name = "yubihsm-ed-sign";
-          pkgs = import nixpkgs {
-            inherit system;
-            overlays = rust.overlays;
-          };
+          pkgs = inputs.nixpkgs.legacyPackages.${system};
           mergeDevShells = import ./nix/mergeDevShells.nix { inherit pkgs; };
-          rust = import ./nix/rust.nix ({ inherit pkgs; } // inputs);
 
-          # Nix for Rust development environment and build
-          #
-          # - `(rustProject false).rootCrate` gives the Rust crate, the
-          #   `build.lib` attribute of which returns the derivation for the
-          #   library in Cargo.toml
-          # - `rustProject true` gives the dev shell.
-          rustProject = returnShellEnv:
-            rust.developPackage {
-              inherit returnShellEnv name;
-              root = ./rustbits;
+          # Subflake for Rust development environment and build
+          rustFlake = nci.lib.makeOutputs {
+            # Documentation and examples:
+            # https://github.com/yusdacra/rust-nix-templater/blob/master/template/flake.nix
+            root = ./rustbits;
+            overrides = {
+              shell = common: prev: {
+                packages = prev.packages ++ [
+                  pkgs.rust-analyzer
+                ];
+                env = prev.env ++ [
+                  # For downstream projects (eg: Haskell) to access the Rust
+                  # library in their runtime tools like repls and language
+                  # servers.
+                  (nixpkgs.lib.nameValuePair "LD_LIBRARY_PATH" "${rustPackage}/lib")
+                ];
+              };
             };
+          };
+          rustPackage = rustFlake.packages.${system}.yubihsm-ed-sign;
+          rustShell = rustFlake.devShell.${system};
 
           # Nix for Haskell development environment and build
           #
@@ -58,7 +58,8 @@
           haskellProject = returnShellEnv:
             # NOTE: developPackage internally uses callCabal2nix
             pkgs.haskellPackages.developPackage {
-              inherit returnShellEnv name;
+              inherit returnShellEnv;
+              name = "yubihsm-ed-sign";
               root = ./.;
               withHoogle = false;
               overrides = self: super: with pkgs.haskell.lib; {
@@ -67,10 +68,7 @@
                 # Example: 
                 # > NanoID = self.callCabal2nix "NanoID" inputs.NanoID { };
                 # Assumes that you have the 'NanoID' flake input defined.
-
-                # The 3c99cfdd88 suffix is the Rust compiler hash
-                # cf. https://stackoverflow.com/a/28335376/55246
-                yubihsm_ed_sign-3c99cfdd88 = (rustProject false).rootCrate.build.lib;
+                yubihsmedsign = rustPackage;
               };
               modifier = drv:
                 pkgs.haskell.lib.overrideCabal drv (drv: {
@@ -81,21 +79,30 @@
                   ];
                 });
             };
+            haskellPackage = haskellProject false;
+            haskellShell = haskellProject true;
+
         in
         {
-          devShell =
-            mergeDevShells
-              [
-                (haskellProject true)
-                (rustProject true)
-              ];
-
-          packages = {
-            yubihsm-ed-sign-rust = (rustProject false).rootCrate.build.lib;
-            yubihsm-ed-sign-haskell = haskellProject false;
+          devShells = {
+            rust = rustShell;
+            haskell = haskellShell;
+            default =
+              mergeDevShells
+                [
+                  self.devShells.${system}.haskell
+                  self.devShells.${system}.rust
+                ];
           };
 
-          defaultPackage = self.packages.${system}.yubihsm-ed-sign-haskell;
+          packages = {
+            rust = rustPackage;
+            default = haskellPackage;
+          };
+
+          # For commpat with older Nix
+          defaultPackage = self.packages.${system}.default;
+          devShell = self.devShells.${system}.default;
         };
     in
     inputs.flake-utils.lib.eachSystem [ "x86_64-linux" ] outputsFor;

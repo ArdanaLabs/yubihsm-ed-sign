@@ -11,7 +11,7 @@ debug-assertions = true
 
 [lib]
 name = "yubihsmedsign"
-crate-type = ["staticlib"]
+crate-type = ["staticlib", "cdylib"]
 
 
 [dependencies]
@@ -24,3 +24,9 @@ testing = []
 [dev-dependencies]
 yubihsm = { version = "0.40.0", features = ["usb", "mockhsm"] }
 yubihsm-ed-sign = { path = '.', features = ["testing"] }
+
+[package.metadata.nix]
+app = true
+build = true
+library = true
+systems = ["x86_64-linux"]

@@ -7,11 +7,11 @@ pkgs.mkShell (builtins.foldl'
   (a: b:
     # Standard shell attributes
     {
-      buildInputs = a.buildInputs ++ b.buildInputs;
-      nativeBuildInputs = a.nativeBuildInputs ++ b.nativeBuildInputs;
-      propagatedBuildInputs = a.propagatedBuildInputs ++ b.propagatedBuildInputs;
-      propagatedNativeBuildInputs = a.propagatedNativeBuildInputs ++ b.propagatedNativeBuildInputs;
-      shellHook = a.shellHook + "\n" + b.shellHook;
+      buildInputs = (a.buildInputs or []) ++ (b.buildInputs or []);
+      nativeBuildInputs = (a.nativeBuildInputs or []) ++ (b.nativeBuildInputs or []);
+      propagatedBuildInputs = (a.propagatedBuildInputs or []) ++ (b.propagatedBuildInputs or []);
+      propagatedNativeBuildInputs = (a.propagatedNativeBuildInputs or []) ++ (b.propagatedNativeBuildInputs or []);
+      shellHook = (a.shellHook or "") + "\n" + (b.shellHook or "");
     } //
     # Environment variables
     (
