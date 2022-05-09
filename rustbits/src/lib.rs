@@ -14,30 +14,23 @@ pub fn create_client(connector: Connector) -> Result<Client, Error> {
   Client::open(connector, Default::default(), true)
 }
 
-
 #[no_mangle]
 pub extern fn hello_world() {
   print!("Hello world");
 }
 
-#[cfg(feature = "production")]
+#[cfg(not(testing))]
 fn make_connector() -> Connector {
-return Connector::usb(&Default::default());
+Connector::usb(&Default::default())
 }
-
-#[cfg(feature = "develop")]
+ 
+#[cfg(testing)]
 fn make_connector() -> Connector {
-return Connector = Connector::mockhsm();
-}
-
-#[cfg(feature = "testing")]
-fn make_connector() -> Connector {
-
-  return Connector = Connector::mockhsm();
+  Connector::mockhsm()
 }
 
 #[no_mangle]
-pub extern fn sign_with_ed_key(id: u16, msgptr: *const u8, msglen: usize, result: *mut u8) -> () {
+pub unsafe extern fn sign_with_ed_key(id: u16, msgptr: *const u8, msglen: usize, result: *mut u8) {
   let connector = make_connector(); 
   let client: Client = create_client(connector).expect("could not connect to YubiHSM");
   let msg: &[u8] = unsafe { slice::from_raw_parts(msgptr, msglen) };
