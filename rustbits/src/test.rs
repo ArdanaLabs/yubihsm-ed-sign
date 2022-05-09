@@ -46,7 +46,7 @@ use crate::sign_with_ed_key_internal;
       //  
       match client.get_public_key(TEST_KEY_ID) {
         Ok(key) => {
-          client.reset_device(); // Probably unnessecary 
+          
           assert_eq!(key.bytes, PUBLICKEY)
         },
         Err(e) => panic!("Error during asymmetric key test {}", e),
@@ -73,7 +73,7 @@ use crate::sign_with_ed_key_internal;
       ).unwrap();
 
       unsafe {sign_with_ed_key_internal(&client,TEST_KEY_ID, MESSAGE,res.as_mut_ptr())};
-      client.reset_device(); // probably unessecary
+     
       assert_eq!(SIGNATURE,&res);
      
    }

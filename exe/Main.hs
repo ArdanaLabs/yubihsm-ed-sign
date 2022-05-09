@@ -17,3 +17,4 @@ test =
     (Label (encodeUtf8 $ pack "foo")) 
     (Domains 1)
     (encodeUtf8 $ pack $ take 32 $ repeat 'a')
+    True

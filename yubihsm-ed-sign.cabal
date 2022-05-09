@@ -37,6 +37,7 @@ executable yubihsm-ed-sign
     hs-source-dirs: exe
     main-is: Main.hs
     build-depends: 
-        base, 
+        base,
+        
         text,
         yubihsm-ed-sign
