@@ -3,3 +3,4 @@ target
 .stack-work/
 stack.yaml.lock
 /dist-newstyle
+.direnv
