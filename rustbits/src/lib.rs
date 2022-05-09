@@ -33,8 +33,8 @@ fn make_connector() -> Connector {
 pub unsafe extern fn sign_with_ed_key(id: u16, msgptr: *const u8, msglen: usize, result: *mut u8) {
   let connector = make_connector(); 
   let client: Client = create_client(connector).expect("could not connect to YubiHSM");
-  let msg: &[u8] = unsafe { slice::from_raw_parts(msgptr, msglen) };
-  unsafe {sign_with_ed_key_internal(&client,id,msg,result)};
+  let msg: &[u8] = slice::from_raw_parts(msgptr, msglen);
+   sign_with_ed_key_internal(&client,id,msg,result);
 
 }
 
@@ -44,12 +44,21 @@ pub unsafe fn sign_with_ed_key_internal(client: &Client,id: u16, msg: &[u8], res
   let sigbytes: [u8; SIGNATURE_SIZE] = sig.to_bytes();
  
   sigbytes.as_ptr().copy_to(result, SIGNATURE_SIZE);
+
+  #[cfg(testing)]
+  match client.get_public_key(TEST_KEY_ID) {
+    Ok(key) => {
+      client.reset_device(); // Probably unnessecary 
+      assert_eq!(key.bytes, PUBLICKEY)
+    },
+    Err(e) => panic!("Error during asymmetric key test {}", e),
+  }
 }
 
 #[no_mangle]
 pub extern fn put_ed_key(id: u16, label: &[u8; LABEL_SIZE], domain: u16, key: &[u8; KEY_SIZE]) -> () {
  
-  let connector: Connector = Connector::usb(&Default::default());
+  let connector = make_connector(); 
   let client: Client = create_client(connector).expect("could not connect to YubiHSM");
   put_ed_key_internal(&client,id,label,domain,key);
 }
@@ -67,4 +76,5 @@ pub fn put_ed_key_internal(client: &Client, id: u16, label: &[u8; LABEL_SIZE], d
     &key[..]
   ).expect("could not put the key");
   ()
+
 }
