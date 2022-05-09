@@ -96,12 +96,12 @@
           };
 
           packages = {
-            yubihsm-ed-sign-rust = rustPackage;
-            yubihsm-ed-sign-haskell = haskellPackage;
+            rust = rustPackage;
+            default = haskellPackage;
           };
 
           # For commpat with older Nix
-          defaultPackage = self.packages.${system}.yubihsm-ed-sign-haskell;
+          defaultPackage = self.packages.${system}.default;
           devShell = self.devShells.${system}.default;
         };
     in

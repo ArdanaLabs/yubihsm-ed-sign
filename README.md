@@ -14,9 +14,9 @@ The Rust and Haskell library can be built using Nix as follows,
 
 ```sh
 # Rust
-nix build .#yubihsm-ed-sign-rust
+nix build .#rust
 # Haskell
-nix build .#yubihsm-ed-sign-haskell
+nix build
 ```
 
 You can also use `cabal` or `cargo` from inside of `nix develop` shell.  For example,
