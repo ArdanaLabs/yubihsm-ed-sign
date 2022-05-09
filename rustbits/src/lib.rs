@@ -19,23 +19,28 @@ pub extern fn hello_world() {
   print!("Hello world");
 }
 
-#[cfg(not(testing))]
-fn make_connector() -> Connector {
-Connector::usb(&Default::default())
+#[cfg(debug_assertions)]
+fn mock_connector() -> Connector {
+  Connector::mockhsm()
 }
  
-#[cfg(testing)]
-fn make_connector() -> Connector {
-  Connector::mockhsm()
+#[cfg(not(debug_assertions))]
+fn mock_connector() -> Connector {
+  panic!("Error: Attempted to use the testing mock connector with debug_assertions.")
+}
+
+fn make_connector(testing_mock: bool) -> Connector {
+  if testing_mock { mock_connector() } else {
+    Connector::usb(&Default::default())
+  }
 }
 
 #[no_mangle]
-pub unsafe extern fn sign_with_ed_key(id: u16, msgptr: *const u8, msglen: usize, result: *mut u8) {
-  let connector = make_connector(); 
+pub unsafe extern fn sign_with_ed_key(id: u16, msgptr: *const u8, msglen: usize, result: *mut u8, testing_mock: bool) {
+  let connector = make_connector(testing_mock);
   let client: Client = create_client(connector).expect("could not connect to YubiHSM");
   let msg: &[u8] = slice::from_raw_parts(msgptr, msglen);
    sign_with_ed_key_internal(&client,id,msg,result);
-
 }
 
 pub unsafe fn sign_with_ed_key_internal(client: &Client,id: u16, msg: &[u8], result: *mut u8) -> () {
@@ -47,9 +52,9 @@ pub unsafe fn sign_with_ed_key_internal(client: &Client,id: u16, msg: &[u8], res
 }
 
 #[no_mangle]
-pub extern fn put_ed_key(id: u16, label: &[u8; LABEL_SIZE], domain: u16, key: &[u8; KEY_SIZE]) -> () {
+pub extern fn put_ed_key(id: u16, label: &[u8; LABEL_SIZE], domain: u16, key: &[u8; KEY_SIZE], testing_mock: bool) -> () {
  
-  let connector = make_connector(); 
+  let connector = make_connector(testing_mock); 
   let client: Client = create_client(connector).expect("could not connect to YubiHSM");
   put_ed_key_internal(&client,id,label,domain,key);
 }
@@ -66,6 +71,4 @@ pub fn put_ed_key_internal(client: &Client, id: u16, label: &[u8; LABEL_SIZE], d
     Algorithm::Ed25519,
     &key[..]
   ).expect("could not put the key");
-  ()
-
 }

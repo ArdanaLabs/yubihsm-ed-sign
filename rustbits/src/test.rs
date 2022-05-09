@@ -3,7 +3,8 @@ mod tests {
   use yubihsm::{object, Capability, Client, Connector};
   use crate::create_client;
   use crate::hello_world;
-  use crate::sign_with_ed_key_internal;
+  use crate::make_connector;
+use crate::sign_with_ed_key_internal;
   const TEST_KEY_ID: u16 = 200;
   const TEST_SIGNING_KEY_DOMAINS: yubihsm::Domain = yubihsm::Domain::DOM1;
 
@@ -59,7 +60,7 @@ mod tests {
       let mut res = [0u8; 64]; 
       
       
-      let connector: Connector = Connector::mockhsm();
+      let connector: Connector = make_connector(true);
       let client: Client = create_client(connector).expect("could not connect to YubiHSM");
       client.delete_object(TEST_KEY_ID, object::Type::AsymmetricKey);
       client.put_asymmetric_key(
