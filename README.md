@@ -44,9 +44,7 @@ Aborted (core dumped)
 - [Install Nix](https://nixos.org/download.html) & [enable Flakes](https://nixos.wiki/wiki/Flakes)
 - Run `nix develop -c echo` to sanity check your environment 
 - [Open as single-folder workspace](https://code.visualstudio.com/docs/editor/workspaces#_singlefolder-workspaces) in Visual Studio Code
-    - When prompted by VSCode, install the [workspace recommended](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions) extensions
-    - <kbd>Ctrl+Shift+P</kbd> to run command "Nix-Env: Select Environment" and then select `shell.nix`. 
-        - The extension will ask you to reload VSCode at the end. Do it.
+  - If you use `nix-direnv`, install [this extension](https://marketplace.visualstudio.com/items?itemName=mkhl.direnv), otherwise install [this one](https://marketplace.visualstudio.com/items?itemName=arrterian.nix-env-selector).
 
 ### Development workflows
 
