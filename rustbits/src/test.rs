@@ -34,7 +34,7 @@ mod tests {
 
         let connector: Connector = Connector::mockhsm();
         let client: Client = create_client(connector).expect("could not connect to YubiHSM");
-        client.delete_object(TEST_KEY_ID, object::Type::AsymmetricKey);
+        // client.delete_object(TEST_KEY_ID, object::Type::AsymmetricKey);
         put_ed_key_internal(&client, TEST_KEY_ID, l, TEST_DOMAIN, SECRETKEY);
         //
         match client.get_public_key(TEST_KEY_ID) {

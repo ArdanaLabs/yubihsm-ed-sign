@@ -17,6 +17,6 @@ test = do
     (Id testKeyID) 
     (Label (encodeUtf8 $ pack "foo")) 
     (Domains 1)
-    publicKey -- (encodeUtf8 $ pack $ take 32 $ repeat 'a')
+    secretKey -- (encodeUtf8 $ pack $ take 32 $ repeat 'a')
     True
  putStrLn("result " <> show res)

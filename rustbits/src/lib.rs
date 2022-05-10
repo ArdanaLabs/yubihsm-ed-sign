@@ -1,16 +1,19 @@
+use std::fmt::Debug;
+use yubihsm::ed25519::PublicKey;
 // use std::intrinsics::copy;
+use std::fs;
 use std::slice;
+use std::str::from_utf8;
 use yubihsm::asymmetric::Algorithm;
 use yubihsm::client::Error;
 use yubihsm::ed25519::Signature;
-use yubihsm::{object, Capability, Client, Connector, Domain};
-use std::{fs}; // for testing only
-use std::str::{from_utf8}; // testing only
-// use std::alloc::Global; // testing only
+use yubihsm::{object, Capability, Client, Connector, Domain}; // for testing only
+                                                              // use std::str::{from_utf8}; // testing only
+                                                              // use std::alloc::Global; // testing only
 const LABEL_SIZE: usize = 40;
 const KEY_SIZE: usize = 32;
 const SIGNATURE_SIZE: usize = 64;
-const TEST_KEY_ID: u16 = 200;
+// const TEST_KEY_ID: u16 = 200;
 const PUBLICKEY: &[u8; 32] = b"\xD7\x5A\x98\x01\x82\xB1\x0A\xB7\xD5\x4B\xFE\xD3\xC9\x64\x07\x3A\x0E\xE1\x72\xF3\xDA\xA6\x23\x25\xAF\x02\x1A\x68\xF7\x07\x51\x1A";
 mod test;
 
@@ -42,8 +45,8 @@ fn make_connector(testing_mock: bool) -> Connector {
 }
 
 #[no_mangle]
-/// # Safety 
-/// 
+/// # Safety
+///
 /// To Do -mlitchard
 pub unsafe extern "C" fn sign_with_ed_key(
     id: u16,
@@ -52,21 +55,15 @@ pub unsafe extern "C" fn sign_with_ed_key(
     result: *mut u8,
     testing_mock: bool,
 ) {
-
     let connector = make_connector(testing_mock);
     let client: Client = create_client(connector).expect("could not connect to YubiHSM");
     let msg: &[u8] = slice::from_raw_parts(msgptr, msglen);
     sign_with_ed_key_internal(&client, id, msg, result);
 }
-/// # Safety 
-/// 
+/// # Safety
+///
 /// To Do -mlitchard
-pub unsafe fn sign_with_ed_key_internal(
-    client: &Client,
-    id: u16,
-    msg: &[u8],
-    result: *mut u8,
-) {
+pub unsafe fn sign_with_ed_key_internal(client: &Client, id: u16, msg: &[u8], result: *mut u8) {
     let sig: Signature = client
         .sign_ed25519(id, msg)
         .expect("could not get the signature");
@@ -74,7 +71,6 @@ pub unsafe fn sign_with_ed_key_internal(
 
     sigbytes.as_ptr().copy_to(result, SIGNATURE_SIZE);
 }
-
 
 #[no_mangle]
 pub extern "C" fn put_ed_key(
@@ -87,17 +83,19 @@ pub extern "C" fn put_ed_key(
     let connector = make_connector(testing_mock);
     let client: Client = create_client(connector).expect("could not connect to YubiHSM");
     put_ed_key_internal(&client, id, label, domain, key_);
-    
-      if testing_mock {
-        match client.get_public_key(TEST_KEY_ID) {
-            Ok(key) => {   
-                let b: Vec<u8> = key_.to_vec();
-                b == key.bytes
+
+    if testing_mock {
+        match client.get_object_info(id, object::Type::AsymmetricKey) {
+            Ok(object_info) => {
+                object_info.object_id == id
+                    && object_info.object_type == object::Type::AsymmetricKey
             }
-            Err(_) => false,
+
+            Err(_) => panic!("get public key failed in testing"),
         }
-      } else {true}
-    
+    } else {
+        true
+    }
 }
 
 pub fn put_ed_key_internal(
