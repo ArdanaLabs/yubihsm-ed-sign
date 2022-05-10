@@ -1,9 +1,12 @@
+// use std::intrinsics::copy;
 use std::slice;
 use yubihsm::asymmetric::Algorithm;
 use yubihsm::client::Error;
 use yubihsm::ed25519::Signature;
 use yubihsm::{object, Capability, Client, Connector, Domain};
-
+use std::{fs}; // for testing only
+use std::str::{from_utf8}; // testing only
+// use std::alloc::Global; // testing only
 const LABEL_SIZE: usize = 40;
 const KEY_SIZE: usize = 32;
 const SIGNATURE_SIZE: usize = 64;
@@ -72,25 +75,29 @@ pub unsafe fn sign_with_ed_key_internal(
     sigbytes.as_ptr().copy_to(result, SIGNATURE_SIZE);
 }
 
+
 #[no_mangle]
 pub extern "C" fn put_ed_key(
     id: u16,
     label: &[u8; LABEL_SIZE],
     domain: u16,
-    key: &[u8; KEY_SIZE],
+    key_: &[u8; KEY_SIZE],
     testing_mock: bool,
-) {
+) -> bool {
     let connector = make_connector(testing_mock);
     let client: Client = create_client(connector).expect("could not connect to YubiHSM");
-    put_ed_key_internal(&client, id, label, domain, key);
-    if testing_mock {
-      match client.get_public_key(TEST_KEY_ID) {
-        Ok(key) => {
-            assert_eq!(key.bytes, PUBLICKEY)
+    put_ed_key_internal(&client, id, label, domain, key_);
+    
+      if testing_mock {
+        match client.get_public_key(TEST_KEY_ID) {
+            Ok(key) => {   
+                let b: Vec<u8> = key_.to_vec();
+                b == key.bytes
+            }
+            Err(_) => false,
         }
-        Err(e) => panic!("Error during asymmetric key test {}", e),
-    }
-    }
+      } else {true}
+    
 }
 
 pub fn put_ed_key_internal(

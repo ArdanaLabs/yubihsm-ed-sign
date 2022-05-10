@@ -2,6 +2,7 @@ import Lib
 import Data.Text.Encoding
 import Data.Text (pack)
 
+testKeyID = 200;
 main :: IO ()
 main = do
   test
@@ -11,10 +12,11 @@ main = do
 --
 -- Expect: "key length cannot be anything else than 32 characters"
 test :: IO ()
-test = 
-  putEdKey 
-    (Id 1) 
+test = do
+ res <- putEdKey 
+    (Id testKeyID) 
     (Label (encodeUtf8 $ pack "foo")) 
     (Domains 1)
-    (encodeUtf8 $ pack $ take 32 $ repeat 'a')
+    publicKey -- (encodeUtf8 $ pack $ take 32 $ repeat 'a')
     True
+ putStrLn("result " <> show res)
