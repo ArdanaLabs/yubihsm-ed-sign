@@ -1,4 +1,6 @@
 import Lib
+
+import Control.Exception
 import Data.Text.Encoding
 import Data.Text (pack)
 
@@ -19,4 +21,7 @@ test = do
     (Domains 1)
     secretKey -- (encodeUtf8 $ pack $ take 32 $ repeat 'a')
     True
- putStrLn("result " <> show res)
+ let res' = assert (res == True) ("test passed " <> (show $ res == True))
+ putStrLn("result " <> show res')
+ putStrLn("res is " <> show res)
+ 
