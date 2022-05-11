@@ -3,7 +3,6 @@
         "matklad.rust-analyzer",
         "jnoortheen.nix-ide",
         "haskell.haskell",
-        "arrterian.nix-env-selector",
         "bbenoist.nix"
     ]
 }
