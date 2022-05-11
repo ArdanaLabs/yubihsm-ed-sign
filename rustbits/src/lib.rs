@@ -1,20 +1,20 @@
-use std::fmt::Debug;
-use yubihsm::ed25519::PublicKey;
-// use std::intrinsics::copy;
-use std::fs;
 use std::slice;
-use std::str::from_utf8;
+
 use yubihsm::asymmetric::Algorithm;
 use yubihsm::client::Error;
 use yubihsm::ed25519::Signature;
-use yubihsm::{object, Capability, Client, Connector, Domain}; // for testing only
-                                                              // use std::str::{from_utf8}; // testing only
+use yubihsm::{object, Capability, Client, Connector, Domain}; // for testing only                                                         // use std::str::{from_utf8}; // testing only
                                                               // use std::alloc::Global; // testing only
+
 const LABEL_SIZE: usize = 40;
 const KEY_SIZE: usize = 32;
 const SIGNATURE_SIZE: usize = 64;
-// const TEST_KEY_ID: u16 = 200;
-const PUBLICKEY: &[u8; 32] = b"\xD7\x5A\x98\x01\x82\xB1\x0A\xB7\xD5\x4B\xFE\xD3\xC9\x64\x07\x3A\x0E\xE1\x72\xF3\xDA\xA6\x23\x25\xAF\x02\x1A\x68\xF7\x07\x51\x1A";
+const TEST_DOMAIN: u16 = 0x0001;
+const TEST_KEY_ID: u16 = 200;
+const TEST_SIGNING_KEY_LABEL: &str = "Signatory test key";
+const TEST_SIGNING_KEY_DOMAINS: yubihsm::Domain = yubihsm::Domain::DOM1;
+const SECRETKEY: &[u8; 32] = b"\x9D\x61\xB1\x9D\xEF\xFD\x5A\x60\xBA\x84\x4A\xF4\x92\xEC\x2C\xC4\x44\x49\xC5\x69\x7B\x32\x69\x19\x70\x3B\xAC\x03\x1C\xAE\x7F\x60";
+// const PUBLICKEY: &[u8; 32] = b"\xD7\x5A\x98\x01\x82\xB1\x0A\xB7\xD5\x4B\xFE\xD3\xC9\x64\x07\x3A\x0E\xE1\x72\xF3\xDA\xA6\x23\x25\xAF\x02\x1A\x68\xF7\x07\x51\x1A";
 mod test;
 
 pub fn create_client(connector: Connector) -> Result<Client, Error> {
@@ -58,18 +58,47 @@ pub unsafe extern "C" fn sign_with_ed_key(
     let connector = make_connector(testing_mock);
     let client: Client = create_client(connector).expect("could not connect to YubiHSM");
     let msg: &[u8] = slice::from_raw_parts(msgptr, msglen);
-    sign_with_ed_key_internal(&client, id, msg, result);
+
+    sign_with_ed_key_internal(&client, id, msg, result, testing_mock);
 }
 /// # Safety
 ///
 /// To Do -mlitchard
-pub unsafe fn sign_with_ed_key_internal(client: &Client, id: u16, msg: &[u8], result: *mut u8) {
-    let sig: Signature = client
-        .sign_ed25519(id, msg)
-        .expect("could not get the signature");
-    let sigbytes: [u8; SIGNATURE_SIZE] = sig.to_bytes();
+pub unsafe fn sign_with_ed_key_internal(
+    client: &Client,
+    id: u16,
+    msg: &[u8],
+    result: *mut u8,
+    testing_mock: bool,
+) {
+    if testing_mock {
+        use yubihsm::asymmetric;
+        client
+            .put_asymmetric_key(
+                TEST_KEY_ID,
+                TEST_SIGNING_KEY_LABEL.into(),
+                TEST_SIGNING_KEY_DOMAINS,
+                Capability::SIGN_EDDSA,
+                asymmetric::Algorithm::Ed25519,
+                SECRETKEY.to_vec(),
+            )
+            .unwrap();
+        let sig: Signature = client
+            .sign_ed25519(id, msg)
+            .expect("could not get the signature");
+            let sigbytes: [u8; SIGNATURE_SIZE] = sig.to_bytes();
 
     sigbytes.as_ptr().copy_to(result, SIGNATURE_SIZE);
+    } else {
+        let sig: Signature = client
+            .sign_ed25519(id, msg)
+            .expect("could not get the signature");
+            let sigbytes: [u8; SIGNATURE_SIZE] = sig.to_bytes();
+
+    sigbytes.as_ptr().copy_to(result, SIGNATURE_SIZE);
+    }
+
+    
 }
 
 #[no_mangle]

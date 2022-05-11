@@ -23,27 +23,27 @@ testPutEdKey = do
     (Label (encodeUtf8 $ pack "foo")) 
     (Domains 1)
     secretKey -- (encodeUtf8 $ pack $ take 32 $ repeat 'a')
-    False
+    True
  let res' = assert (res == True) ("test passed " <> (show $ res == True))
  putStrLn("result " <> show res')
  putStrLn("res is " <> show res)
  
 testSignWithEdKey :: IO ()
 testSignWithEdKey = do
+   {-
  _ <- putEdKey 
     (Id testKeyID) 
     (Label (encodeUtf8 $ pack "foo")) 
     (Domains 1)
     secretKey -- (encodeUtf8 $ pack $ take 32 $ repeat 'a')
-    False
-
+    True
+-}
  sig :: B.ByteString <- signWithEdKey
                           (Id testKeyID)
                           message
-                          False
+                          True
  let emptyTest = if (B.null sig) then "sig is empty" else "sig not empty"
  let res = if sig == signature  then "success" else "failed"
- B.writeFile "./bytestringSigntature" sig
  putStrLn ("result is " <> res)
  putStrLn emptyTest
  
