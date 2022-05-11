@@ -6,15 +6,15 @@ use yubihsm::ed25519::Signature;
 use yubihsm::{object, Capability, Client, Connector, Domain}; // for testing only                                                         // use std::str::{from_utf8}; // testing only
                                                               // use std::alloc::Global; // testing only
 
+ // These constants are needed for haskell-side testing                                                             
 const LABEL_SIZE: usize = 40;
 const KEY_SIZE: usize = 32;
 const SIGNATURE_SIZE: usize = 64;
-const TEST_DOMAIN: u16 = 0x0001;
 const TEST_KEY_ID: u16 = 200;
 const TEST_SIGNING_KEY_LABEL: &str = "Signatory test key";
 const TEST_SIGNING_KEY_DOMAINS: yubihsm::Domain = yubihsm::Domain::DOM1;
 const SECRETKEY: &[u8; 32] = b"\x9D\x61\xB1\x9D\xEF\xFD\x5A\x60\xBA\x84\x4A\xF4\x92\xEC\x2C\xC4\x44\x49\xC5\x69\x7B\x32\x69\x19\x70\x3B\xAC\x03\x1C\xAE\x7F\x60";
-// const PUBLICKEY: &[u8; 32] = b"\xD7\x5A\x98\x01\x82\xB1\x0A\xB7\xD5\x4B\xFE\xD3\xC9\x64\x07\x3A\x0E\xE1\x72\xF3\xDA\xA6\x23\x25\xAF\x02\x1A\x68\xF7\x07\x51\x1A";
+
 mod test;
 
 pub fn create_client(connector: Connector) -> Result<Client, Error> {
@@ -71,6 +71,8 @@ pub unsafe fn sign_with_ed_key_internal(
     result: *mut u8,
     testing_mock: bool,
 ) {
+    // testing_mock is a boolean passed in from the Haskell side to faciliate 
+    // haskell-side tests
     let sig = if testing_mock {
         use yubihsm::asymmetric;
         client
@@ -112,7 +114,8 @@ pub extern "C" fn put_ed_key(
     let connector = make_connector(testing_mock);
     let client: Client = create_client(connector).expect("could not connect to YubiHSM");
     put_ed_key_internal(&client, id, label, domain, key_);
-
+    // testing_mock is a boolean passed in from the Haskell side to faciliate 
+    // haskell-side tests
     if testing_mock {
         match client.get_object_info(id, object::Type::AsymmetricKey) {
             Ok(object_info) => {
