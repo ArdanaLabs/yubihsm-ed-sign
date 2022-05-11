@@ -44,11 +44,13 @@ executable yubihsm-ed-sign
 
 test-suite test-yubihsm-ed-sign
     type:              exitcode-stdio-1.0
-    main-is:           PutEdKey.hs 
+    main-is:           Main.hs 
     default-language:  Haskell2010
     build-depends:     base >=4.13.0.0 && <=4.18.0.0
                      , bytestring
                      , HUnit
+                     , text
+                     , transformers
     other-modules:     Lib
     extra-libraries:  
           pthread

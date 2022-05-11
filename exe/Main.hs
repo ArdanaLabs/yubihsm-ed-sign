@@ -22,7 +22,7 @@ testPutEdKey = do
     (Id testKeyID) 
     (Label (encodeUtf8 $ pack "foo")) 
     (Domains 1)
-    secretKey -- (encodeUtf8 $ pack $ take 32 $ repeat 'a')
+    secretKey 
     True
  let res' = assert (res == True) ("test passed " <> (show $ res == True))
  putStrLn("result " <> show res')
