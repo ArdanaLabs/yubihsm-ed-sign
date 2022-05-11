@@ -33,15 +33,6 @@ library
           pthread
         , yubihsmedsign
 
-executable yubihsm-ed-sign
-    hs-source-dirs: exe
-    main-is: Main.hs
-    build-depends: 
-        base,
-        bytestring,
-        text,
-        yubihsm-ed-sign
-
 test-suite test-yubihsm-ed-sign
     type:              exitcode-stdio-1.0
     main-is:           Main.hs 
