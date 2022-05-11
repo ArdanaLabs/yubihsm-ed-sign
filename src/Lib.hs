@@ -35,11 +35,14 @@ signatureSize = 64
 helloWorld :: IO() 
 helloWorld = hello_world
 
-publicKey :: B.ByteString
-publicKey = "D75A980182B10AB7D54BFED3C964073A0EE172F3DAA62325AF021A68F707511A"
+signature :: B.ByteString 
+signature = "\xE5\x56\x43\x00\xC3\x60\xAC\x72\x90\x86\xE2\xCC\x80\x6E\x82\x8A\x84\x87\x7F\x1E\xB8\xE5\xD9\x74\xD8\x73\xE0\x65\x22\x49\x01\x55\x5F\xB8\x82\x15\x90\xA3\x3B\xAC\xC6\x1E\x39\x70\x1C\xF9\xB4\x6B\xD2\x5B\xF5\xF0\x59\x5B\xBE\x24\x65\x51\x41\x43\x8E\x7A\x10\x0B"
 
 secretKey :: B.ByteString 
 secretKey = "\x9D\x61\xB1\x9D\xEF\xFD\x5A\x60\xBA\x84\x4A\xF4\x92\xEC\x2C\xC4\x44\x49\xC5\x69\x7B\x32\x69\x19\x70\x3B\xAC\x03\x1C\xAE\x7F\x60"
+
+message :: B.ByteString 
+message = B.empty 
 
 putEdKey :: Id -> Label -> Domains -> B.ByteString -> Bool -> IO Bool
 putEdKey (Id i) (Label label) (Domains d) key isTesting = do
@@ -62,4 +65,5 @@ signWithEdKey (Id i) messageB isTesting =
         isTestingWord = fromInteger (toInteger (fromEnum isTesting)) 
     B.useAsCStringLen messageB $ \(msgptr, msglen) ->
       sign_with_ed_key (CUShort i) msgptr (fromIntegral msglen) outputBuffer (CBool isTestingWord)
+    
     B.packCStringLen (outputBuffer, signatureSize)

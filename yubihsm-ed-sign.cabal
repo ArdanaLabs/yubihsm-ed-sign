@@ -38,6 +38,6 @@ executable yubihsm-ed-sign
     main-is: Main.hs
     build-depends: 
         base,
-        
+        bytestring,
         text,
         yubihsm-ed-sign
