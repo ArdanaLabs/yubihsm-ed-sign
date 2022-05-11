@@ -9,7 +9,7 @@ import Data.Text (pack)
 testKeyID = 200;
 main :: IO ()
 main = do
- -- testPutEdKey
+  testPutEdKey
   testSignWithEdKey
   putStrLn("finished");
 
@@ -30,14 +30,7 @@ testPutEdKey = do
  
 testSignWithEdKey :: IO ()
 testSignWithEdKey = do
-   {-
- _ <- putEdKey 
-    (Id testKeyID) 
-    (Label (encodeUtf8 $ pack "foo")) 
-    (Domains 1)
-    secretKey -- (encodeUtf8 $ pack $ take 32 $ repeat 'a')
-    True
--}
+
  sig :: B.ByteString <- signWithEdKey
                           (Id testKeyID)
                           message

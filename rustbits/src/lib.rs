@@ -71,7 +71,7 @@ pub unsafe fn sign_with_ed_key_internal(
     result: *mut u8,
     testing_mock: bool,
 ) {
-    if testing_mock {
+    let sig = if testing_mock {
         use yubihsm::asymmetric;
         client
             .put_asymmetric_key(
@@ -86,19 +86,19 @@ pub unsafe fn sign_with_ed_key_internal(
         let sig: Signature = client
             .sign_ed25519(id, msg)
             .expect("could not get the signature");
-            let sigbytes: [u8; SIGNATURE_SIZE] = sig.to_bytes();
 
-    sigbytes.as_ptr().copy_to(result, SIGNATURE_SIZE);
+        sig
     } else {
         let sig: Signature = client
             .sign_ed25519(id, msg)
             .expect("could not get the signature");
-            let sigbytes: [u8; SIGNATURE_SIZE] = sig.to_bytes();
+
+        sig
+    };
+
+    let sigbytes: [u8; SIGNATURE_SIZE] = sig.to_bytes();
 
     sigbytes.as_ptr().copy_to(result, SIGNATURE_SIZE);
-    }
-
-    
 }
 
 #[no_mangle]
