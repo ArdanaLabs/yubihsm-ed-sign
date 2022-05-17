@@ -151,8 +151,15 @@ pub fn put_ed_key_internal(
         )
         .expect("could not put the key");
 }
+/// # Safety
+///
+/// To Do -mlitchard
+pub unsafe extern "C" fn get_public_key(kid: u16,result: *mut u8,testing_mock: bool) {
+    let connector = make_connector(testing_mock);
+    let client: Client = create_client(connector).expect("could not connect to YubiHSM");
+    get_public_key_internal(&client, kid, result)
 
-
+}
 /// # Safety
 ///
 /// To Do -mlitchard
