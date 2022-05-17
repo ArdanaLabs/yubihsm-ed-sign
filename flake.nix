@@ -85,6 +85,12 @@
         in
         {
           devShells = {
+            common = pkgs.mkShell {
+              buildInputs = with pkgs; [
+                yubihsm-shell
+                yubihsm-connector
+              ];
+            };
             rust = rustShell;
             haskell = haskellShell;
             default =
@@ -92,6 +98,7 @@
                 [
                   self.devShells.${system}.haskell
                   self.devShells.${system}.rust
+                  self.devShells.${system}.common
                 ];
           };
 
