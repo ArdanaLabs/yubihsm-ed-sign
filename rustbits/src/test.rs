@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::create_client;
+    use crate::get_public_key_internal;
     use crate::hello_world;
     use crate::make_connector;
     use crate::sign_with_ed_key_internal;
@@ -47,9 +48,7 @@ mod tests {
     #[test]
     fn test_sign_with_ed_key() {
         use yubihsm::asymmetric;
-
         let mut res = [0u8; 64];
-
         let connector: Connector = make_connector(true);
         let client: Client = create_client(connector).expect("could not connect to YubiHSM");
        
@@ -67,5 +66,27 @@ mod tests {
         unsafe { sign_with_ed_key_internal(&client, TEST_KEY_ID, MESSAGE, res.as_mut_ptr(), false) };
 
         assert_eq!(SIGNATURE, &res);
+    }
+
+    #[test]
+    fn test_get_pub_key() {
+        use yubihsm::asymmetric;
+
+        let connector: Connector = make_connector(true);
+        let client: Client = create_client(connector).expect("could not connect to YubiHSM");
+        let mut res = [0u8; 32];
+        client
+            .put_asymmetric_key(
+                TEST_KEY_ID,
+                TEST_SIGNING_KEY_LABEL.into(),
+                TEST_SIGNING_KEY_DOMAINS,
+                Capability::SIGN_EDDSA,
+                asymmetric::Algorithm::Ed25519,
+                SECRETKEY.to_vec(),
+            )
+            .expect("test_get_pub_key failed to put_asymmetric_key()");
+        
+      unsafe {get_public_key_internal(&client, TEST_KEY_ID, res.as_mut_ptr())};
+      assert_eq!(PUBLICKEY,&res);
     }
 }

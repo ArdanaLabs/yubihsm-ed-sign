@@ -123,7 +123,7 @@ pub extern "C" fn put_ed_key(
                     && object_info.object_type == object::Type::AsymmetricKey
             }
 
-            Err(_) => panic!("get public key failed in testing"),
+            Err(_) => panic!("put asymmetric key failed in testing"),
         }
     } else {
         true
@@ -152,12 +152,13 @@ pub fn put_ed_key_internal(
         .expect("could not put the key");
 }
 
+
 /// # Safety
 ///
 /// To Do -mlitchard
-pub unsafe fn get_public_key(kid: u16,result: *mut u8, testing_mock: bool ) {
-    let connector = make_connector(testing_mock);
-    let client: Client = create_client(connector).expect("could not connect to YubiHSM");
+pub unsafe fn get_public_key_internal(client: &Client,kid: u16,result: *mut u8 ) {
+    // let connector = make_connector(testing_mock);
+    // let client: Client = create_client(connector).expect("could not connect to YubiHSM");
     let mut err_result: Vec<u8> = zeroes(KEY_SIZE);
         
     match client.get_public_key(kid) {
