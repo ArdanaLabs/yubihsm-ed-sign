@@ -151,3 +151,29 @@ pub fn put_ed_key_internal(
         )
         .expect("could not put the key");
 }
+
+/// # Safety
+///
+/// To Do -mlitchard
+pub unsafe fn get_public_key(kid: u16,result: *mut u8, testing_mock: bool ) {
+    let connector = make_connector(testing_mock);
+    let client: Client = create_client(connector).expect("could not connect to YubiHSM");
+    let mut err_result: Vec<u8> = zeroes(KEY_SIZE);
+        
+    match client.get_public_key(kid) {
+        Ok(key) => {
+            let mut bkey = key.bytes;
+            
+            bkey.as_mut_ptr().copy_to(result, KEY_SIZE);
+        },
+        Err(_) => err_result.as_mut_ptr().copy_to(result, KEY_SIZE),
+    }
+}
+
+fn zeroes(size: usize) -> Vec<u8> {
+    let mut zero_vec: Vec<u8> = Vec::with_capacity(size as usize);
+    for _i in 0..size {
+        zero_vec.push(0);
+    } 
+    zero_vec
+}
