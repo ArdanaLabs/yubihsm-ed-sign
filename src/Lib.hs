@@ -17,6 +17,9 @@ foreign import ccall unsafe "sign_with_ed_key" sign_with_ed_key
 foreign import ccall unsafe "hello_world" hello_world
   :: IO ()
 
+foreign import ccall unsafe "get_public_key" get_public_key
+  ::  CUShort -> CString -> CBool -> IO ()
+
 newtype Id = Id Word16 deriving (Eq, Show)
 newtype Label = Label B.ByteString deriving (Eq, Show)
 newtype Domains = Domains Word16 deriving (Eq, Show)
@@ -65,3 +68,14 @@ signWithEdKey (Id i) messageB isTesting =
       sign_with_ed_key (CUShort i) msgptr (fromIntegral msglen) outputBuffer (CBool isTestingWord)
     
     B.packCStringLen (outputBuffer, signatureSize)
+
+getPubKey :: Id -> Bool -> IO B.ByteString
+getPubKey (Id i) isTesting = 
+  A.allocaBytes keySize $ \outputBuffer -> do
+    let isTestingWord :: Word8
+        isTestingWord = fromInteger (toInteger (fromEnum isTesting))
+        publicKeyB = B.empty
+    get_public_key (CUShort i) outputBuffer (CBool isTestingWord)
+    B.packCStringLen (outputBuffer, keySize)
+
+
