@@ -12,7 +12,7 @@ import Lib
       secretKey,
       message,
       putEdKey,
-      signWithEdKey )
+      signWithEdKey, getPubKey, publicKey )
 
 
 testKeyID = 200;
@@ -25,7 +25,8 @@ tests :: Test
 tests = 
     TestList [ TestLabel "test1" helloWorldTest
              , TestLabel "putEdKey Test" putEdKeyTest
-             , TestLabel "signWithEdKey Test" signWithEdKeyTest]
+             , TestLabel "signWithEdKey Test" signWithEdKeyTest
+             , TestLabel "getPublicKey" getPublicKeyTest]
 
 helloWorldTest :: Test
 helloWorldTest = TestCase $ do
@@ -47,3 +48,8 @@ signWithEdKeyTest = TestCase $ do
     sig :: B.ByteString <- 
         signWithEdKey (Id testKeyID) message True
     assertEqual "signWithEdKeyTest failed" sig signature 
+
+getPublicKeyTest :: Test 
+getPublicKeyTest = TestCase $ do
+    res <- getPubKey (Id testKeyID) True
+    assertEqual "getPublicKeyTest failed" res publicKey 
