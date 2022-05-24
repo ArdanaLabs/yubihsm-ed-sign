@@ -182,7 +182,7 @@ pub unsafe extern "C" fn get_public_key(kid: u16,result: *mut u8,testing_mock: b
 pub unsafe fn get_public_key_internal(client: &Client,kid: u16,result: *mut u8 ) {
     // let connector = make_connector(testing_mock);
     // let client: Client = create_client(connector).expect("could not connect to YubiHSM");
-    let mut err_result: Vec<u8> = zeroes(KEY_SIZE);
+    let mut err_result: Vec<u8> = [0; KEY_SIZE].into();
         
     match client.get_public_key(kid) {
         Ok(key) => {
