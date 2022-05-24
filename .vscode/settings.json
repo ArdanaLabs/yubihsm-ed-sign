@@ -1,4 +1,5 @@
 {
     "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
-    "haskell.manageHLS": "PATH"
+    "haskell.manageHLS": "PATH",
+    "rust-analyzer.checkOnSave.command": "clippy"
 }
