@@ -1,9 +1,21 @@
 module Api(app,SignApi) where
 
-import Data.Aeson
-import GHC.Generics
-import Network.Wai
+import Data.Aeson(ToJSON,FromJSON)
+import GHC.Generics(Generic)
 import Servant
+  ((:<|>)((:<|>))
+  ,(:>)
+  ,Application
+  ,Get
+  ,Handler
+  ,JSON
+  ,PlainText
+  ,Post
+  ,Proxy(Proxy)
+  ,ReqBody
+  ,Server
+  ,serve
+  )
 import Control.Monad.IO.Class (MonadIO(liftIO))
 import Lib (signWithEdKey, Id (Id),getPubKey)
 import Hex(fromHex,toHex)

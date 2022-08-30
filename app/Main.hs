@@ -1,5 +1,10 @@
 import Network.Wai.Handler.Warp
-import System.IO
+  (setBeforeMainLoop
+  ,setPort
+  ,defaultSettings
+  ,runSettings
+  )
+import System.IO(hPutStrLn,stderr)
 import Lib (secretKey,putEdKey,Id (Id), Label (Label),Domains(Domains) )
 import Data.String (IsString(fromString))
 import Api(app)

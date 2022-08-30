@@ -1,5 +1,8 @@
 module Lib
-  (helloWorld
+  (Id(Id)
+  ,Label(Label)
+  ,Domains(Domains)
+  ,helloWorld
   ,publicKey
   ,secretKey
   ,putEdKey
@@ -7,9 +10,6 @@ module Lib
   ,signWithEdKey
   ,getPubKey
   ,message
-  ,Id(Id)
-  ,Label(Label)
-  ,Domains(Domains)
   ) where
 
 import Foreign.C.Types (CUShort(..), CSize(..), CBool (CBool))
@@ -89,5 +89,4 @@ getPubKey (Id i) isTesting =
         isTestingWord = fromInteger (toInteger (fromEnum isTesting))
     get_public_key (CUShort i) outputBuffer (CBool isTestingWord)
     B.packCStringLen (outputBuffer, keySize)
-
 
