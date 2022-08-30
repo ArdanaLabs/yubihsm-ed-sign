@@ -1,13 +1,6 @@
-{-# LANGUAGE DataKinds #-}
-
-import Data.Aeson
-import GHC.Generics
-import Network.Wai
 import Network.Wai.Handler.Warp
-import Servant
 import System.IO
-import Control.Monad.IO.Class (MonadIO(liftIO))
-import Lib (secretKey,putEdKey,signWithEdKey, Id (Id), Label (Label),Domains(Domains), getPubKey)
+import Lib (secretKey,putEdKey,Id (Id), Label (Label),Domains(Domains) )
 import Data.String (IsString(fromString))
 import App(app)
 

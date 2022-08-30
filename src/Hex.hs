@@ -1,4 +1,4 @@
-module Hex where
+module Hex(toHex,fromHex) where
 
 import Data.ByteString(ByteString,unpack,pack)
 import Data.Word(Word8)
