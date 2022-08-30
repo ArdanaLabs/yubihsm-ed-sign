@@ -3,18 +3,15 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE TypeApplications #-}
 
-import           Data.Aeson
-import           GHC.Generics
-import           Network.Wai
-import           Network.Wai.Handler.Warp
-import           Servant
-import           System.IO
+import Data.Aeson
+import GHC.Generics
+import Network.Wai
+import Network.Wai.Handler.Warp
+import Servant
+import System.IO
 import Control.Monad.IO.Class (MonadIO(liftIO))
-import Lib (secretKey,putEdKey,signWithEdKey, Id (Id), Label (Label),Domains(Domains))
+import Lib (secretKey,putEdKey,signWithEdKey, Id (Id), Label (Label),Domains(Domains), getPubKey)
 import Data.String (IsString(fromString))
-
-type SignApi =
-  "sign" :> ReqBody '[JSON, PlainText] String :> Post '[JSON] Tx
 
 main :: IO ()
 main = do
@@ -26,45 +23,34 @@ main = do
           print =<< putEdKey (Id 200) (Label $ fromString "testkey") (Domains 1) secretKey True
                           )
         defaultSettings
-  runSettings settings mkApp
+  runSettings settings app
 
-mkApp :: Application
-mkApp = serve @SignApi Proxy server
+app :: Application
+app = serve @SignApi Proxy server
+
+type SignApi =
+  "sign" :> ReqBody '[JSON, PlainText] String :> Post '[JSON] Payload
+  :<|> "pubkey" :> Get '[JSON] Payload
 
 server :: Server SignApi
-server = signTx
+server =
+  signTx
+  :<|> getPK
 
-signTx :: String -> Handler Tx
+signTx :: String -> Handler Payload
 signTx w = do
   let bytes = fromString w
   liftIO $ print bytes
   signed <- liftIO $ signWithEdKey (Id 200) bytes True
-  return $ Tx $ show signed
+  return $ Payload $ show signed
 
-newtype Tx
-  = Tx {
-    value :: String
-  }
+getPK :: Handler Payload
+getPK = do
+  pk <- liftIO $ getPubKey (Id 200) True
+  return $ Payload $ show pk
+
+newtype Payload = Payload {value :: String}
   deriving (Eq, Show, Generic)
 
-instance ToJSON Tx
-instance FromJSON Tx
-
-{-
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeApplications #-}
-
-import Servant.API
-import Servant
-
-
-
-type Sign = "sign" :> Post '[String] String
-
-main :: IO ()
-main = run 555 (serve @Sign Proxy app)
-
-app :: Server Sign
-app = undefined
--}
+instance ToJSON Payload
+instance FromJSON Payload
