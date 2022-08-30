@@ -1,4 +1,4 @@
-module App(app,SignApi) where
+module Api(app,SignApi) where
 
 import Data.Aeson
 import GHC.Generics

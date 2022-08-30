@@ -2,7 +2,7 @@ import Network.Wai.Handler.Warp
 import System.IO
 import Lib (secretKey,putEdKey,Id (Id), Label (Label),Domains(Domains) )
 import Data.String (IsString(fromString))
-import App(app)
+import Api(app)
 
 main :: IO ()
 main = do
