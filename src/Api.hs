@@ -6,7 +6,7 @@ import Network.Wai
 import Servant
 import Control.Monad.IO.Class (MonadIO(liftIO))
 import Lib (signWithEdKey, Id (Id),getPubKey)
-import Data.String (IsString(fromString))
+import Hex(fromHex,toHex)
 
 app :: Application
 app = serve @SignApi Proxy server
@@ -22,15 +22,15 @@ server =
 
 signTx :: String -> Handler Payload
 signTx w = do
-  let bytes = fromString w
+  let bytes = fromHex w
   liftIO $ print bytes
   signed <- liftIO $ signWithEdKey (Id 200) bytes True
-  return $ Payload $ show signed
+  return $ Payload $ toHex signed
 
 getPK :: Handler Payload
 getPK = do
   pk <- liftIO $ getPubKey (Id 200) True
-  return $ Payload $ show pk
+  return $ Payload $ toHex pk
 
 newtype Payload = Payload {value :: String}
   deriving stock (Eq, Show, Generic)

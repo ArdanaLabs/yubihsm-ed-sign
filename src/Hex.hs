@@ -9,7 +9,7 @@ toHex :: ByteString -> String
 toHex = concatMap byteToHex . unpack
 
 fromHex :: String -> ByteString
-fromHex = pack . undefined . chunksOf 2
+fromHex = pack . map (read . ("0x"<>)) . chunksOf 2
 
 byteToHex :: Word8 -> String
 byteToHex b = padToLen 2 '0' (showHex b "")
