@@ -21,6 +21,21 @@ maintainer:         oleg@mlabs.city
 -- category:
 extra-source-files: CHANGELOG.md
 
+executable signing-server
+  type:           exitcode-stdio-1.0
+  main-is:        Main.hs
+  hs-source-dirs: app
+  ghc-options:    -threaded -rtsopts -with-rtsopts=-N
+  build-depends:  base >=4.13.0.0 && <=4.18.0.0
+                , yubihsm-ed-sign
+                , servant
+                , servant-server
+                , wai
+                , warp
+                , http-types
+                , aeson
+
+
 library
     hs-source-dirs:   src
     exposed-modules:  Lib
@@ -29,13 +44,13 @@ library
                     , bytestring
     default-language: Haskell2010
 
-    extra-libraries:  
+    extra-libraries:
           pthread
         , yubihsmedsign
 
 test-suite test-yubihsm-ed-sign
     type:              exitcode-stdio-1.0
-    main-is:           Main.hs 
+    main-is:           Main.hs
     default-language:  Haskell2010
     build-depends:     base >=4.13.0.0 && <=4.18.0.0
                      , bytestring
@@ -43,7 +58,7 @@ test-suite test-yubihsm-ed-sign
                      , text
                      , transformers
     other-modules:     Lib
-    extra-libraries:  
+    extra-libraries:
           pthread
         , yubihsmedsign
-    hs-source-dirs:    tests src 
+    hs-source-dirs:    tests src
