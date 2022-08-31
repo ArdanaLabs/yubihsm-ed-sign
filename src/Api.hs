@@ -1,14 +1,11 @@
 module Api(app,SignApi) where
 
-import Data.Aeson(ToJSON,FromJSON)
-import GHC.Generics(Generic)
 import Servant
   ((:<|>)((:<|>))
   ,(:>)
   ,Application
   ,Get
   ,Handler
-  ,JSON
   ,PlainText
   ,Post
   ,Proxy(Proxy)
@@ -24,28 +21,23 @@ app :: Application
 app = serve @SignApi Proxy server
 
 type SignApi =
-  "sign" :> ReqBody '[JSON, PlainText] String :> Post '[JSON] Payload
-  :<|> "pubkey" :> Get '[JSON] Payload
+  "sign" :> ReqBody '[PlainText] String :> Post '[PlainText] String
+  :<|> "pubkey" :> Get '[PlainText] String
 
 server :: Server SignApi
 server =
   signTx
   :<|> getPK
 
-signTx :: String -> Handler Payload
+signTx :: String -> Handler String
 signTx w = do
   let bytes = fromHex w
   liftIO $ print bytes
   signed <- liftIO $ signWithEdKey (Id 200) bytes True
-  return $ Payload $ toHex signed
+  return $ toHex signed
 
-getPK :: Handler Payload
+getPK :: Handler String
 getPK = do
   pk <- liftIO $ getPubKey (Id 200) True
-  return $ Payload $ toHex pk
+  return $ toHex pk
 
-newtype Payload = Payload {value :: String}
-  deriving stock (Eq, Show, Generic)
-
-instance ToJSON Payload
-instance FromJSON Payload
