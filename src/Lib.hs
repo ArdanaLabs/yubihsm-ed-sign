@@ -18,6 +18,7 @@ import qualified Foreign.Marshal.Alloc as A
 import Data.Word (Word16, Word8)
 import Control.Monad (unless)
 import qualified Data.ByteString as B
+import Data.ByteString.Bech32(encodeBech32,HumanReadablePart(HumanReadablePart))
 
 foreign import ccall unsafe "put_ed_key" put_ed_key
   :: CUShort -> CString -> CUShort -> CString -> CBool -> IO Bool
