@@ -75,6 +75,7 @@
                 # > NanoID = self.callCabal2nix "NanoID" inputs.NanoID { };
                 # Assumes that you have the 'NanoID' flake input defined.
                 yubihsmedsign = rustPackage;
+                bech32 = pkgs.haskell.lib.dontCheck super.bech32;
               };
               modifier = drv:
                 pkgs.haskell.lib.overrideCabal drv (drv: {
