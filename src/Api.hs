@@ -17,7 +17,7 @@ import Control.Monad.IO.Class (MonadIO(liftIO))
 import Data.ByteString.Bech32(encodeBech32,HumanReadablePart(HumanReadablePart))
 import Data.Text(unpack)
 import Lib (signWithEdKey, Id (Id),getPubKey)
-import Hex(fromHex,toHex)
+import Hex(fromHex)
 
 app :: Application
 app = serve @SignApi Proxy server
@@ -36,7 +36,7 @@ signTx w = do
   let bytes = fromHex w
   liftIO $ print bytes
   signed <- liftIO $ signWithEdKey (Id 200) bytes True
-  return $ toHex signed
+  return $ unpack $ encodeBech32 (HumanReadablePart "ed25519_sig") signed
 
 getPK :: Handler String
 getPK = do
