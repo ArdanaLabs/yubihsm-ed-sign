@@ -1,23 +1,11 @@
-import Network.Wai.Handler.Warp
-  (setBeforeMainLoop
-  ,setPort
-  ,defaultSettings
-  ,runSettings
-  )
-import System.IO(hPutStrLn,stderr)
-import Lib (secretKey,putEdKey,Id (Id), Label (Label),Domains(Domains) )
-import Data.String (IsString(fromString))
-import Api(app)
+{-# LANGUAGE LambdaCase #-}
+import System.Environment (getArgs)
+import Api(signTx,getPK)
+import System.Exit (die)
 
 main :: IO ()
-main = do
-  let port = 3000
-      settings =
-        setPort port $
-        setBeforeMainLoop (do
-          hPutStrLn stderr ("listening on port " ++ show port)
-          print =<< putEdKey (Id 200) (Label $ fromString "testkey") (Domains 1) secretKey True
-                          )
-        defaultSettings
-  runSettings settings app
-
+main =
+  getArgs >>= \case
+    ["getpubkey"] -> getPK >>= putStrLn
+    ["sign",tx] -> signTx tx >>= putStrLn
+    _ -> die "expected `getpubkey` or `sign <some_tx>`"

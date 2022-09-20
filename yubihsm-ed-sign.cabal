@@ -62,11 +62,6 @@ library
     build-depends:    base >=4.13.0.0 && <=4.18.0.0
                     , bytestring
                     , split
-                    , servant
-                    , servant-server
-                    , wai
-                    , warp
-                    , http-types
                     , aeson
                     , bech32
                     , fast-bech32
