@@ -9,7 +9,6 @@ import Hex(fromHex)
 signTx :: String -> IO String
 signTx w = do
   let bytes = fromHex w
-  liftIO $ print bytes
   signed <- liftIO $ signWithEdKey (Id 200) bytes True
   return $ unpack $ encodeBech32 (HumanReadablePart "ed25519_sig") signed
   -- got this magic string from tracing valid txs in ctl
