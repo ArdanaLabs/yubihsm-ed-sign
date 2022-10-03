@@ -29,6 +29,7 @@ common lang
     TypeApplications
     DerivingStrategies
     OverloadedStrings
+    ScopedTypeVariables
   ghc-options:
     -Wall -Wcompat -Wincomplete-uni-patterns -Wredundant-constraints
     -Wmissing-export-lists -Werror -Wincomplete-record-updates
