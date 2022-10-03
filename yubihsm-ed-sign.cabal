@@ -36,7 +36,7 @@ common lang
     -Wno-partial-type-signatures -Wmissing-deriving-strategies
 
 
-executable signing-server
+executable signer
   import: lang
   type:           exitcode-stdio-1.0
   main-is:        Main.hs
@@ -44,12 +44,6 @@ executable signing-server
   ghc-options:    -threaded -rtsopts -with-rtsopts=-N
   build-depends:  base >=4.13.0.0 && <=4.18.0.0
                 , yubihsm-ed-sign
-                , servant
-                , servant-server
-                , wai
-                , warp
-                , http-types
-                , aeson
 
 
 library
