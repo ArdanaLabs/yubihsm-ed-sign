@@ -21,21 +21,56 @@ maintainer:         oleg@mlabs.city
 -- category:
 extra-source-files: CHANGELOG.md
 
+common lang
+  default-extensions:
+    DataKinds
+    DeriveGeneric
+    TypeOperators
+    TypeApplications
+    DerivingStrategies
+    OverloadedStrings
+    ScopedTypeVariables
+  ghc-options:
+    -Wall -Wcompat -Wincomplete-uni-patterns -Wredundant-constraints
+    -Wmissing-export-lists -Werror -Wincomplete-record-updates
+    -Wno-partial-type-signatures -Wmissing-deriving-strategies
+
+
+executable signer
+  import: lang
+  type:           exitcode-stdio-1.0
+  main-is:        Main.hs
+  hs-source-dirs: app
+  ghc-options:    -threaded -rtsopts -with-rtsopts=-N
+  build-depends:  base >=4.13.0.0 && <=4.18.0.0
+                , yubihsm-ed-sign
+
+
 library
+    import: lang
     hs-source-dirs:   src
-    exposed-modules:  Lib
+    exposed-modules:
+      Lib
+      Hex
+      Api
     other-extensions: ForeignFunctionInterface
     build-depends:    base >=4.13.0.0 && <=4.18.0.0
                     , bytestring
+                    , split
+                    , aeson
+                    , bech32
+                    , fast-bech32
+                    , text
     default-language: Haskell2010
 
-    extra-libraries:  
+    extra-libraries:
           pthread
         , yubihsmedsign
 
 test-suite test-yubihsm-ed-sign
+    import: lang
     type:              exitcode-stdio-1.0
-    main-is:           Main.hs 
+    main-is:           Main.hs
     default-language:  Haskell2010
     build-depends:     base >=4.13.0.0 && <=4.18.0.0
                      , bytestring
@@ -43,7 +78,7 @@ test-suite test-yubihsm-ed-sign
                      , text
                      , transformers
     other-modules:     Lib
-    extra-libraries:  
+    extra-libraries:
           pthread
         , yubihsmedsign
-    hs-source-dirs:    tests src 
+    hs-source-dirs:    tests src

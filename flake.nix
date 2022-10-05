@@ -16,6 +16,9 @@
     # For Rust development.
     nci.url = "github:yusdacra/nix-cargo-integration";
     nci.inputs.nixpkgs.follows = "nixpkgs";
+
+    bech32.url = "github:input-output-hk/bech32";
+    bech32.flake = false;
   };
 
   outputs = { self, nixpkgs, nci, ... }@inputs:
@@ -62,13 +65,17 @@
               name = "yubihsm-ed-sign";
               root = ./.;
               withHoogle = false;
+              source-overrides = {
+                bech32="${self.inputs.bech32}/bech32";
+              };
               overrides = self: super: with pkgs.haskell.lib; {
                 # Use callCabal2nix to override Haskell dependencies here
                 # cf. https://tek.brick.do/K3VXJd8mEKO7
-                # Example: 
+                # Example:
                 # > NanoID = self.callCabal2nix "NanoID" inputs.NanoID { };
                 # Assumes that you have the 'NanoID' flake input defined.
                 yubihsmedsign = rustPackage;
+                bech32 = pkgs.haskell.lib.dontCheck super.bech32;
               };
               modifier = drv:
                 pkgs.haskell.lib.overrideCabal drv (drv: {

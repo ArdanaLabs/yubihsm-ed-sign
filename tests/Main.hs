@@ -1,4 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
 import Control.Monad.IO.Class ()
 import qualified Data.ByteString as B
 import Data.Text (pack)
@@ -13,16 +12,18 @@ import Lib
       message,
       putEdKey,
       signWithEdKey, getPubKey, publicKey )
+import Data.Word (Word16)
 
-
+testKeyID :: Word16
 testKeyID = 200;
+
 main :: IO ()
 main = do
     _ <- runTestTT tests
     return ()
 
 tests :: Test
-tests = 
+tests =
     TestList [ TestLabel "test1" helloWorldTest
              , TestLabel "putEdKey Test" putEdKeyTest
              , TestLabel "signWithEdKey Test" signWithEdKeyTest
@@ -31,25 +32,24 @@ tests =
 helloWorldTest :: Test
 helloWorldTest = TestCase $ do
     assertEqual "hello world" True True
-    
-    
+
 putEdKeyTest :: Test
 putEdKeyTest = TestCase $ do
-    res <- putEdKey 
-                (Id testKeyID) 
-                (Label (encodeUtf8 $ pack "foo")) 
+    res <- putEdKey
+                (Id testKeyID)
+                (Label (encodeUtf8 $ pack "foo"))
                 (Domains 1)
-                secretKey 
+                secretKey
                 True
     assertBool "putEdKey failed" res
 
 signWithEdKeyTest :: Test
 signWithEdKeyTest = TestCase $ do
-    sig :: B.ByteString <- 
+    sig :: B.ByteString <-
         signWithEdKey (Id testKeyID) message True
-    assertEqual "signWithEdKeyTest failed" sig signature 
+    assertEqual "signWithEdKeyTest failed" sig signature
 
-getPublicKeyTest :: Test 
+getPublicKeyTest :: Test
 getPublicKeyTest = TestCase $ do
     res <- getPubKey (Id testKeyID) True
-    assertEqual "getPublicKeyTest failed" res publicKey 
+    assertEqual "getPublicKeyTest failed" res publicKey
