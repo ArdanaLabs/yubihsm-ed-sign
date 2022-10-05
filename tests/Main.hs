@@ -14,9 +14,6 @@ import Lib
       signWithEdKey, getPubKey, publicKey )
 import Data.Word (Word16)
 
-
-
-
 testKeyID :: Word16
 testKeyID = 200;
 
@@ -35,7 +32,6 @@ tests =
 helloWorldTest :: Test
 helloWorldTest = TestCase $ do
     assertEqual "hello world" True True
-
 
 putEdKeyTest :: Test
 putEdKeyTest = TestCase $ do

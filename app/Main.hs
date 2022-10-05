@@ -6,6 +6,6 @@ import System.Exit (die)
 main :: IO ()
 main =
   getArgs >>= \case
-    ["getpubkey"] -> getPK >>= putStrLn
+    ["getPubKey"] -> getPK >>= putStrLn
     ["sign",tx] -> signTx tx >>= putStrLn
     _ -> die "expected `getpubkey` or `sign <some_tx>`"

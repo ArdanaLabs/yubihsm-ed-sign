@@ -6,6 +6,8 @@ import Data.Text(unpack)
 import Lib (signWithEdKey, Id (Id),getPubKey)
 import Hex(fromHex)
 
+-- | Takes a serialised TX as a hex string
+-- and produces a Bech32 encoded signature
 signTx :: String -> IO String
 signTx w = do
   let bytes = fromHex w
@@ -13,6 +15,7 @@ signTx w = do
   return $ unpack $ encodeBech32 (HumanReadablePart "ed25519_sig") signed
   -- got this magic string from tracing valid txs in ctl
 
+-- | produces a Bech32 encoded publicKey hash
 getPK :: IO String
 getPK = do
   pk <- liftIO $ getPubKey (Id 200) True
