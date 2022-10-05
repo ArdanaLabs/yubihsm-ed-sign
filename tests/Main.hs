@@ -13,12 +13,15 @@ import Lib
       putEdKey,
       signWithEdKey, getPubKey, publicKey )
 import Data.Word (Word16)
+import System.Exit (die)
+import Control.Monad (void)
 
 testKeyID :: Word16
 testKeyID = 200;
 
 main :: IO ()
 main = do
+    void $ die "test failure"
     _ <- runTestTT tests
     return ()
 
